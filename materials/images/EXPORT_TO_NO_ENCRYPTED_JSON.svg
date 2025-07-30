@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 25.4.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 800 800" style="enable-background:new 0 0 800 800;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#000000;stroke-width:66.6667;stroke-miterlimit:133.3333;}
+	.st1{fill:#FFFFFF;stroke:#77C043;stroke-width:7;stroke-miterlimit:10;}
+	.st2{fill:#1A2734;stroke:#77C043;stroke-width:7;stroke-miterlimit:10;}
+</style>
+<g id="SVGRepo_bgCarrier">
+</g>
+<g id="SVGRepo_tracerCarrier">
+</g>
+<g id="SVGRepo_iconCarrier">
+	<path class="st0" d="M466.7,633.3h66.7c36.8,0,66.7-29.8,66.7-66.7v-81.3c0-30.6,20.8-57.3,50.5-64.7l50.5-12.6
+		c8.4-2.1,8.4-14.1,0-16.2l-50.5-12.6c-29.7-7.4-50.5-34.1-50.5-64.7V166.7H466.7"/>
+	<path class="st0" d="M333.3,166.7h-66.7c-36.8,0-66.7,29.8-66.7,66.7v81.3c0,30.6-20.8,57.3-50.5,64.7L99,391.9
+		c-8.4,2.1-8.4,14.1,0,16.2l50.5,12.6c29.7,7.4,50.5,34.1,50.5,64.7v147.9h133.3"/>
+</g>
+<path class="st1" d="M438.1,382.8c0-22.5-18.3-40.9-40.9-40.9c-22.6,0-40.9,18.3-40.9,40.9H438.1z"/>
+<path class="st2" d="M400,272.4c29.3,0,55.8,15.9,69.8,41.1L441.8,329c-12.8-23.1-41.9-31.5-65-18.7c-15.2,8.4-24.7,24.5-24.7,41.9
+	h127.6c17.6,0,31.9,14.3,31.9,31.9v111.6c0,17.6-14.3,31.9-31.9,31.9H320.3c-17.6,0-31.9-14.3-31.9-31.9V384.1
+	c0-17.6,14.3-31.9,31.9-31.9C320.3,308.1,356,272.4,400,272.4L400,272.4z"/>
+<rect x="320.3" y="384.1" class="st1" width="159.5" height="111.6"/>
+<rect x="376.1" y="423.9" class="st2" width="47.8" height="31.9"/>
+</svg>

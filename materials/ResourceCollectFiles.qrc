@@ -1,0 +1,22 @@
+<RCC>
+    <qresource prefix="/bankcard">
+        <file alias="AMEX">images/amex.png</file>
+        <file alias="MASTERCARD">images/mastercard.png</file>
+        <file alias="UNIONPAY">images/unionpay.png</file>
+        <file alias="VISA">images/visa.png</file>
+        <file alias="PASSWORD_MANAGER">images/password_manager.ico</file>
+        <file alias="MASTER_CARD_TEMPLATE">images/MASTER_CARD_TEMPLATE.svg</file>
+        <file alias="UNION_CARD_TEMPLATE">images/UNION_CARD_TEMPLATE.svg</file>
+        <file alias="VISA_CARD_TEMPLATE">images/VISA_CARD_TEMPLATE.svg</file>
+    </qresource>
+    <qresource prefix="/edit">
+        <file alias="DELETE_ROWS">images/DELETE_ROWS.svg</file>
+        <file alias="INSERT_A_ROW">images/INSERT_A_ROW.svg</file>
+        <file alias="APPEND_ROWS">images/APPEND_ROWS.svg</file>
+        <file alias="INSERT_ROWS">images/INSERT_ROWS.svg</file>
+        <file alias="SAVE_CHANGES">images/SAVE_CHANGES.svg</file>
+        <file alias="CREATE_TABLE">images/CREATE_TABLE.svg</file>
+        <file alias="EXPORT_TO_ENCRYPTED_JSON">images/EXPORT_TO_ENCRYPTED_JSON.svg</file>
+        <file alias="EXPORT_TO_IMAGE">images/EXPORT_TO_IMAGE.svg</file>
+    </qresource>
+</RCC>
