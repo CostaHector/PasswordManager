@@ -29,7 +29,6 @@ AccountDetailView::AccountDetailView(const QString &title, QWidget *parent) //
   mFormWid->setLayout(mForm);
   setWidget(mFormWid);
   setFont(ViewStyleSheet::TEXT_EDIT_FONT);
-  mBtnApply->setStyleSheet(ViewStyleSheet::SUBMIT_BTN_STYLE);
   Subscribe();
   editNotHappen();
   setWindowTitle("Detail View");
@@ -46,13 +45,32 @@ void AccountDetailView::Subscribe() {
 }
 
 void AccountDetailView::editHappen() {
+  // if (mBtnApply->isEnabled()) {
+  //   return;
+  // }
   mBtnApply->setEnabled(true);
   mBtnRecover->setEnabled(true);
+  static const auto GetApplyButtonStyle = [this]()->QPalette{
+    QPalette pal = mBtnApply->palette();
+    pal.setColor(QPalette::ButtonText, QColor(30, 144, 255));
+    return pal;
+  };
+  static const QPalette applyPalette = GetApplyButtonStyle();
+  mBtnApply->setPalette(GetApplyButtonStyle());
+  static QFont font = mBtnApply->font();
+  font.setBold(true);
+  mBtnApply->setFont(font);
 }
 
 void AccountDetailView::editNotHappen() {
+  if (!mBtnApply->isEnabled()) {
+    return;
+  }
   mBtnApply->setEnabled(false);
   mBtnRecover->setEnabled(false);
+  static const QPalette defaultPalette;
+  mBtnApply->setPalette(defaultPalette);
+  mBtnApply->setFont(QFont{});
 }
 
 void AccountDetailView::UpdateDisplay(AccountInfo *pAcc) {

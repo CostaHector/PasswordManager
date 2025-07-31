@@ -3,11 +3,25 @@
 
 #include "AccountStorage.h"
 #include "QAbstractTableModelPub.h"
+#include <QSortFilterProxyModel>
 #include <set>
+
+class AccountSortFilterProxyModel: public QSortFilterProxyModel {
+public:
+  using QSortFilterProxyModel::QSortFilterProxyModel;
+  void BindAccountsList(const AccountStorage& accountsList) {
+    pAccountsList = &accountsList;
+  }
+
+protected:
+  bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
+  const AccountStorage* pAccountsList {nullptr};
+};
 
 class PwdTableModel : public QAbstractTableModelPub {
 public:
   friend class AccountListView;
+  friend class AccountSortFilterProxyModel;
   explicit PwdTableModel(QObject* parent = nullptr);
   int rowCount(const QModelIndex& parent = {}) const override { return mAccountsList.size(); }
   int columnCount(const QModelIndex& parent = {}) const override {

@@ -12,6 +12,15 @@ struct AccountInfo {
   QString pwdStr;
   QString othersStr;
 
+  bool IsContainsKeyWords(const QString& keywords) const {
+    return keywords.isEmpty()
+           || typeStr.contains(keywords, Qt::CaseSensitivity::CaseInsensitive)
+           || nameStr.contains(keywords, Qt::CaseSensitivity::CaseInsensitive)
+           || accountStr.contains(keywords, Qt::CaseSensitivity::CaseInsensitive)
+           || pwdStr.contains(keywords, Qt::CaseSensitivity::CaseInsensitive)
+           || othersStr.contains(keywords, Qt::CaseSensitivity::CaseInsensitive);
+  }
+
   QString toCsvLine() const;
   static bool FromCsvLine(const QString& csvLine, AccountInfo& acc);
   static const QStringList HORIZONTAL_HEAD;

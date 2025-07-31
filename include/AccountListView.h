@@ -21,10 +21,16 @@ public:
   bool IsLoadSucceed() const {
     return mPwdModel->GetLoadResult();
   }
+  void SetFilter(const QString& keywords) {
+    if (mSortProxyModel == nullptr) {
+      return;
+    }
+    mSortProxyModel->setFilterFixedString(keywords);
+  }
 private:
   bool ExportPlainCSV();
   PwdTableModel* mPwdModel{nullptr};
-  QSortFilterProxyModel* mSortProxyModel{nullptr};
+  AccountSortFilterProxyModel* mSortProxyModel{nullptr};
 };
 
 #endif // ACCOUNTLISTVIEW_H

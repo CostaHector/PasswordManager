@@ -13,8 +13,9 @@ AccountListView::AccountListView(QWidget* parent)
 {
   mPwdModel = new PwdTableModel{this};
 
-  mSortProxyModel = new QSortFilterProxyModel{this};
+  mSortProxyModel = new AccountSortFilterProxyModel{this};
   mSortProxyModel->setSourceModel(mPwdModel);
+  mSortProxyModel->BindAccountsList(mPwdModel->mAccountsList);
 
   setModel(mSortProxyModel);
   setEditTriggers(QAbstractItemView::EditKeyPressed);

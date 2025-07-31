@@ -1,7 +1,6 @@
 ﻿#ifndef PASSWORDMANAGER_H
 #define PASSWORDMANAGER_H
 
-#include <QLabel>
 #include <QLineEdit>
 #include <QMainWindow>
 #include <QStatusBar>
@@ -16,11 +15,12 @@ class PasswordManager : public QMainWindow {
   void closeEvent(QCloseEvent* event) override;
   void ReadSettings();
   void Subscribe();
-  void SetPWBookName(const QString& pwdBookName = "");
+  void SetPWBookName();
 
  private:
   AccountListView* mAccountListView {nullptr};
   AccountDetailView* mAccountDetailView{nullptr};
+  QLineEdit* mSearchText{nullptr};
   QToolBar* mToolBar {nullptr};
   QStatusBar* mStatusBar {nullptr};
 };

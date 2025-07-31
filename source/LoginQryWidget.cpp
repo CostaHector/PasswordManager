@@ -8,12 +8,13 @@ LoginQryWidget::LoginQryWidget(QWidget *parent)
   setFont(ViewStyleSheet::TEXT_EDIT_FONT);
 
   mSourceCombo = new QComboBox(this);
-  mSourceCombo->insertItem(DataSourceType::ENCRYPT, "From Encrypt CSV File");
-  mSourceCombo->insertItem(DataSourceType::PLAIN, "From Plain CSV File");
+  mSourceCombo->addItem(QIcon(":/FROM_ENCRYPT_CSV"), "From Encrypt CSV File");
+  mSourceCombo->addItem(QIcon(":/FROM_PLAIN_CSV"), "From Plain CSV File");
 
   mKeyEdit = new QLineEdit(this);
   mKeyEdit->setPlaceholderText("Input AES key here");
   mKeyEdit->setEchoMode(QLineEdit::Password);
+  mKeyEdit->setClearButtonEnabled(true);
   mSourceCombo->setToolTip("Input limited to 16 characters (printable ASCII only)");
 
   // 定义正则表达式：仅允许可打印 ASCII 字符（32-126），且长度 ≤16

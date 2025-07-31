@@ -7,6 +7,18 @@
 #include "CardTemplate.h"
 #include <set>
 
+bool AccountSortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const {
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+  const QString keyword = filterRegExp().pattern();  // Qt 5
+#else
+  const QString keyword = filterRegularExpression().pattern();  // Qt 6
+#endif
+  if (pAccountsList == nullptr || keyword.isEmpty()) {
+    return true;
+  }
+  return (*pAccountsList)[sourceRow].IsContainsKeyWords(keyword);
+}
+
 bool LoadTypeIcons(QMap<QString, QIcon>& type2Icons) {
   type2Icons["unionpay"] = QIcon(":/bankcard/UNIONPAY");
   type2Icons["mastercard"] = QIcon(":/bankcard/MASTERCARD");
