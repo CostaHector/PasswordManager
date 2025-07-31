@@ -9,57 +9,92 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+find_package(QT NAMES Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 set(PROJECT_SOURCES
-        main.cpp
-        PasswordManager.cpp
-        PasswordManager.h
+    main.cpp
 )
 
-if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
-    qt_add_executable(PasswordManager
-        MANUAL_FINALIZATION
-        ${PROJECT_SOURCES}
-    )
-# Define target properties for Android with Qt 6 as:
-#    set_property(TARGET PasswordManager APPEND PROPERTY QT_ANDROID_PACKAGE_SOURCE_DIR
-#                 ${CMAKE_CURRENT_SOURCE_DIR}/android)
-# For more information, see https://doc.qt.io/qt-6/qt-add-executable.html#target-creation
-else()
-    if(ANDROID)
-        add_library(PasswordManager SHARED
-            ${PROJECT_SOURCES}
+file(GLOB SRV_SRC_CPP
+    source/*.cpp
+)
+
+set(SRV_HEADER_PATH
+    include
+)
+
+file(GLOB SRV_HEADER_FILES
+    include/*.h
+)
+
+list(LENGTH SRV_SRC_CPP src_cpp_count)
+message("\n> ${src_cpp_count} file(s) in SRV_SRC_CPP, there are:")
+foreach(file ${SRV_SRC_CPP})
+    message("${file}")
+endforeach()
+
+list(LENGTH SRV_HEADER_PATH header_count)
+message("\n> ${header_count} folder(s) in SRV_HEADER_PATH, there are:")
+foreach(folder ${SRV_HEADER_PATH})
+    message("${folder}")
+endforeach()
+
+list(LENGTH SRV_HEADER_FILES include_h_count)
+message("\n> ${include_h_count} file(s) in SRV_HEADER_FILES, there are:")
+foreach(file ${SRV_HEADER_FILES})
+    message("${file}")
+endforeach()
+
+add_executable(PasswordManager
+    ${PROJECT_SOURCES}
+    ${SRV_SRC_CPP}
+    materials/ResourceCollectFiles.qrc
+)
+
+# 添加头文件
+target_sources(PasswordManager PUBLIC
+    ${SRV_HEADER_FILES}
+)
+
+target_include_directories(PasswordManager PUBLIC ${SRV_HEADER_PATH})
+target_link_libraries(PasswordManager PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+
+# OpenSSL configuration for Windows
+if(WIN32)
+    # Set OpenSSL paths
+    set(OPENSSL_ROOT_DIR "C:/Program Files/OpenSSL-Win64")
+
+    # Include directories
+    include_directories("${OPENSSL_ROOT_DIR}/include")
+
+    # Library paths
+    link_directories("${OPENSSL_ROOT_DIR}/lib")
+    link_directories("${OPENSSL_ROOT_DIR}/lib/VC/x64")
+
+    # Debug vs Release library selection
+    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+        target_link_libraries(PasswordManager PRIVATE
+            "${OPENSSL_ROOT_DIR}/lib/VC/x64/MDd/libssl.lib"
+            "${OPENSSL_ROOT_DIR}/lib/VC/x64/MDd/libcrypto.lib"
         )
-# Define properties for Android with Qt 5 after find_package() calls as:
-#    set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/android")
+        message(STATUS "Linking with OpenSSL Debug libraries")
     else()
-        add_executable(PasswordManager
-            ${PROJECT_SOURCES}
-            materials/ResourceCollectFiles.qrc
-            source/include/CustomTableView.h source/include/QAbstractTableModelPub.h source/include/PwdTableModel.h
-            source/CustomTableView.cpp source/PwdTableModel.cpp
-            source/include/PublicVariable.h
-            source/PublicVariable.cpp
-            source/include/PasswordTable.h source/PasswordTable.cpp
-            source/qaesencryption.cpp source/qaesencryption.h
-            source/include/JsonReader.h source/JsonReader.cpp
-            source/include/TableEditActions.h source/TableEditActions.cpp
-            source/include/MyEncrypt.h source/MyEncrypt.cpp
-            source/include/CardTemplate.h source/include/CardTemplate.cpp
+        target_link_libraries(PasswordManager PRIVATE
+            "${OPENSSL_ROOT_DIR}/lib/VC/x64/MD/libssl.lib"
+            "${OPENSSL_ROOT_DIR}/lib/VC/x64/MD/libcrypto.lib"
         )
+        message(STATUS "Linking with OpenSSL Release libraries")
     endif()
 endif()
-
-target_link_libraries(PasswordManager PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
 if(${QT_VERSION} VERSION_LESS 6.1.0)
-  set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.PasswordManager)
+    set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.PasswordManager)
 endif()
+
 set_target_properties(PasswordManager PROPERTIES
     ${BUNDLE_ID_OPTION}
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}

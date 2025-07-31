@@ -1,5 +1,5 @@
-#include "include/CustomTableView.h"
-#include "include/PublicVariable.h"
+#include "CustomTableView.h"
+#include "PublicVariable.h"
 
 #include <QHeaderView>
 #include <QInputDialog>
