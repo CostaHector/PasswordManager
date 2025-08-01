@@ -6,10 +6,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QTextEdit>
-#include <functional>
 #include "AccountStorage.h"
-
-typedef std::function<void()> SET_TABLE_DIRTY ;
 
 class AccountDetailView : public QDockWidget {
 public:
@@ -19,9 +16,6 @@ public:
   void onRecoverModify();
   void onApplyModify();
   void Subscribe();
-  void BindSetTableDirtyCallback(SET_TABLE_DIRTY setTableDirtyFunc) const {
-    pSetTableDirty = setTableDirtyFunc;
-  }
 private:
   void editHappen();
   void editNotHappen();
@@ -33,7 +27,6 @@ private:
   QWidget *mFormWid{nullptr};
 
   mutable AccountInfo *pAccount{nullptr};
-  mutable SET_TABLE_DIRTY pSetTableDirty{nullptr};
 };
 
 #endif // ACCOUNTDETAILVIEW_H

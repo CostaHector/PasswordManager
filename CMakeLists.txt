@@ -20,12 +20,21 @@ file(GLOB SRV_SRC_CPP
     source/*.cpp
 )
 
+file(GLOB SRV_TOOLS_SRC_CPP
+    tools/*.cpp
+)
+
 set(SRV_HEADER_PATH
     include
+    tools
 )
 
 file(GLOB SRV_HEADER_FILES
     include/*.h
+)
+
+file(GLOB SRV_TOOLS_HEADER_FILES
+    tools/*.h
 )
 
 list(LENGTH SRV_SRC_CPP src_cpp_count)
@@ -49,12 +58,14 @@ endforeach()
 add_executable(PasswordManager
     ${PROJECT_SOURCES}
     ${SRV_SRC_CPP}
+    ${SRV_TOOLS_SRC_CPP}
     materials/ResourceCollectFiles.qrc
 )
 
 # 添加头文件
 target_sources(PasswordManager PUBLIC
     ${SRV_HEADER_FILES}
+    ${SRV_TOOLS_HEADER_FILES}
 )
 
 target_include_directories(PasswordManager PUBLIC ${SRV_HEADER_PATH})

@@ -4,7 +4,7 @@
 
 LoginQryWidget::LoginQryWidget(QWidget *parent)
   : QDialog{parent} {
-  updateTitle(false); // 初始标题
+  updateTitle(false);
   setFont(ViewStyleSheet::TEXT_EDIT_FONT);
 
   mSourceCombo = new QComboBox(this);

@@ -62,11 +62,11 @@ void AccountListView::RemoveSelectedRows() {
     return;
   }
   const int nSelectedRowsCnt = selectionModel()->selectedRows().size();
-  QString msg{QString{"Are you sure to remove the %1 row(s) selected"}.arg(nSelectedRowsCnt)};
+  QString msg{QString{"Are you sure to remove the %1 row(s) selected(NOT RECOVERABLE)"}.arg(nSelectedRowsCnt)};
   QMessageBox deleteConfirm;
   deleteConfirm.setWindowTitle("Delete Confirm");
   deleteConfirm.setWindowIcon(QIcon(":/edit/DELETE_ROWS"));
-  deleteConfirm.setIcon(QMessageBox::Icon::Question);
+  deleteConfirm.setIcon(QMessageBox::Icon::Warning);
   deleteConfirm.setText(msg);
   deleteConfirm.addButton(QMessageBox::StandardButton::Ok);
   deleteConfirm.addButton(QMessageBox::StandardButton::Cancel);
@@ -104,11 +104,18 @@ void AccountListView::AppendNRows(int rowCnt) {
   mPwdModel->InsertNRows(lastRowIndex, rowCnt);
 }
 
-AccountInfo* AccountListView::GetAccountInfoByCurrentIndex(const QModelIndex& proxyIndex) {
+QModelIndex AccountListView::GetSourceIndex(const QModelIndex& proxyIndex) const {
   if (!proxyIndex.isValid()) {
+    return {};
+  }
+  return mSortProxyModel->mapToSource(proxyIndex);
+}
+
+AccountInfo* AccountListView::GetAccountInfoByCurrentIndex(const QModelIndex& proxyIndex) {
+  QModelIndex srcCurrentIndex = GetSourceIndex(proxyIndex);
+  if (!srcCurrentIndex.isValid()) {
     return nullptr;
   }
-  QModelIndex srcCurrentIndex = mSortProxyModel->mapToSource(proxyIndex);
   return mPwdModel->rowDataAt(srcCurrentIndex.row());
 }
 
@@ -138,7 +145,6 @@ bool AccountListView::ExportPlainCSV() {
     failedMsgBox.setWindowTitle("Export failed!");
     failedMsgBox.setWindowIcon(QIcon(":/edit/EXPORT"));
     failedMsgBox.setText("Please check disk permissions or space.");
-    // failedMsgBox.setIconPixmap(QPixmap(":/edit/FAILURE"));
     failedMsgBox.setIcon(QMessageBox::Icon::Critical);
     failedMsgBox.setStandardButtons(QMessageBox::Ok);
     failedMsgBox.exec();
@@ -150,7 +156,7 @@ bool AccountListView::ExportPlainCSV() {
   succeedMsgBox.setWindowTitle("Export succeeded");
   succeedMsgBox.setWindowIcon(QIcon(":/edit/EXPORT"));
   succeedMsgBox.setText("Please <b>store the file securely</b>.");
-  succeedMsgBox.setIconPixmap(QPixmap(":/edit/SUCCESS"));
+  succeedMsgBox.setIconPixmap(QPixmap(":/imgs/SAVED"));
   succeedMsgBox.setStandardButtons(QMessageBox::Ok);
   succeedMsgBox.exec();
   return true;

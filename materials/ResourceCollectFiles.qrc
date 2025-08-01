@@ -28,7 +28,9 @@
         <file alias="SEARCH_BY">images/SEARCH_BY.svg</file>
         <file alias="SHOW_CSV_CONTENTS">images/SHOW_CSV_CONTENTS.svg</file>
         <file alias="EXPORT">images/EXPORT.svg</file>
-        <file alias="SUCCESS">images/SUCCESS.svg</file>
-        <file alias="FAILURE">images/FAILURE.svg</file>
+    </qresource>
+    <qresource prefix="/img">
+        <file alias="SAVED">images/SUCCESS.svg</file>
+        <file alias="NOT_SAVED">images/FAILURE.svg</file>
     </qresource>
 </RCC>

@@ -50,13 +50,13 @@ void AccountDetailView::editHappen() {
   // }
   mBtnApply->setEnabled(true);
   mBtnRecover->setEnabled(true);
-  static const auto GetApplyButtonStyle = [this]()->QPalette{
+  static const auto GetApplyButtonStyle = [this]() -> QPalette {
     QPalette pal = mBtnApply->palette();
     pal.setColor(QPalette::ButtonText, QColor(30, 144, 255));
     return pal;
   };
   static const QPalette applyPalette = GetApplyButtonStyle();
-  mBtnApply->setPalette(GetApplyButtonStyle());
+  mBtnApply->setPalette(applyPalette);
   static QFont font = mBtnApply->font();
   font.setBold(true);
   mBtnApply->setFont(font);
@@ -107,13 +107,29 @@ void AccountDetailView::onApplyModify() {
   if (pAccount == nullptr) {
     return;
   }
-  pAccount->typeStr = etType->text();
-  pAccount->nameStr = etName->text();
-  pAccount->accountStr = etAccount->text();
-  pAccount->pwdStr = etPwd->text();
-  pAccount->othersStr = etOthers->toPlainText();
-  if (pSetTableDirty != nullptr) {
-    pSetTableDirty();
+  bool detailModified{false};
+  if (pAccount->typeStr != etType->text()) {
+    pAccount->typeStr = etType->text();
+    detailModified = true;
+  }
+  if (pAccount->nameStr != etName->text()) {
+    pAccount->nameStr = etName->text();
+    detailModified = true;
+  }
+  if (pAccount->accountStr != etAccount->text()) {
+    pAccount->accountStr = etAccount->text();
+    detailModified = true;
+  }
+  if (pAccount->pwdStr != etPwd->text()) {
+    pAccount->pwdStr = etPwd->text();
+    detailModified = true;
+  }
+  if (pAccount->othersStr != etOthers->toPlainText()) {
+    pAccount->othersStr = etOthers->toPlainText();
+    detailModified = true;
   }
   editNotHappen();
+  if (detailModified) {
+    pAccount->SetDetailModified();
+  }
 }

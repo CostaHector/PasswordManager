@@ -13,12 +13,8 @@ public:
   void RemoveSelectedRows();
   void InsertNRows(int rowCnt = 1);
   void AppendNRows(int rowCnt);
+  QModelIndex GetSourceIndex(const QModelIndex& proxyIndex) const;
   AccountInfo* GetAccountInfoByCurrentIndex(const QModelIndex& proxyIndex);
-  void SetTableDirty() {
-    if (mPwdModel != nullptr) {
-      mPwdModel->SetDirty();
-    }
-  }
   bool IsLoadSucceed() const {
     return mPwdModel->GetLoadResult();
   }
