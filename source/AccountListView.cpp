@@ -145,7 +145,6 @@ bool AccountListView::ExportPlainCSV() {
     failedMsgBox.setWindowTitle("Export failed!");
     failedMsgBox.setWindowIcon(QIcon(":/edit/EXPORT"));
     failedMsgBox.setText("Please check disk permissions or space.");
-    // failedMsgBox.setIconPixmap(QPixmap(":/edit/FAILURE"));
     failedMsgBox.setIcon(QMessageBox::Icon::Critical);
     failedMsgBox.setStandardButtons(QMessageBox::Ok);
     failedMsgBox.exec();
@@ -157,7 +156,7 @@ bool AccountListView::ExportPlainCSV() {
   succeedMsgBox.setWindowTitle("Export succeeded");
   succeedMsgBox.setWindowIcon(QIcon(":/edit/EXPORT"));
   succeedMsgBox.setText("Please <b>store the file securely</b>.");
-  succeedMsgBox.setIconPixmap(QPixmap(":/edit/SUCCESS"));
+  succeedMsgBox.setIconPixmap(QPixmap(":/imgs/SAVED"));
   succeedMsgBox.setStandardButtons(QMessageBox::Ok);
   succeedMsgBox.exec();
   return true;
