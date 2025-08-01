@@ -14,7 +14,7 @@ AccountDetailView::AccountDetailView(const QString &title, QWidget *parent) //
 
   mBtnRecover = new QPushButton{"恢复", nullptr};
   mBtnApply = new QPushButton{"应用", nullptr};
-  mBtnApply->setShortcut(QKeySequence(Qt::ControlModifier | Qt::Key::Key_S));
+  mBtnApply->setShortcut(QKeySequence(Qt::Key_F10));
   mBtnApply->setToolTip(QString("<b>%1 (%2)</b><br/> Apply changes right now.") //
                             .arg(mBtnApply->text(), mBtnApply->shortcut().toString()));
 

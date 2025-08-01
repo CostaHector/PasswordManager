@@ -13,8 +13,7 @@ struct AccountInfo {
   QString othersStr;
 
   bool IsContainsKeyWords(const QString& keywords) const {
-    return keywords.isEmpty()
-           || typeStr.contains(keywords, Qt::CaseSensitivity::CaseInsensitive)
+    return keywords.isEmpty() || typeStr.contains(keywords, Qt::CaseSensitivity::CaseInsensitive)
            || nameStr.contains(keywords, Qt::CaseSensitivity::CaseInsensitive)
            || accountStr.contains(keywords, Qt::CaseSensitivity::CaseInsensitive)
            || pwdStr.contains(keywords, Qt::CaseSensitivity::CaseInsensitive)
@@ -32,8 +31,12 @@ struct AccountStorage {
   bool mAllowOperation;
 
   bool DeleteAccountCSVFile();
+
   bool SaveAccounts(bool bEncrypt = true) const;
   bool LoadAccounts();
+  QString GetExportCSVRecords() const;
+  static QVector<AccountInfo> GetAccountsFromPlainString(const QString& contents,
+                                                         int* pNonEmptyLine = nullptr);
 
   int RemoveIndexes(const std::set<int>& rows);
   bool InsertNRows(int indexBefore, int cnt);
@@ -41,6 +44,10 @@ struct AccountStorage {
 
   AccountInfo& operator[](int i);
   const AccountInfo& operator[](int i) const;
+  AccountStorage& operator+=(const QVector<AccountInfo>& tempAccounts) {
+    mAccounts += tempAccounts;
+    return *this;
+  }
 
   inline int size() const { return mAccounts.size(); }
   inline bool empty() const { return mAccounts.empty(); }

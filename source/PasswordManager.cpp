@@ -1,10 +1,11 @@
 ﻿#include "PasswordManager.h"
+#include <QDateTime>
+#include <QDesktopServices>
 #include <QMessageBox>
+#include <QPlainTextEdit>
 #include "PublicVariable.h"
 #include "SimpleAES.h"
 #include "TableEditActions.h"
-
-typedef void (*SET_WINDOW_TITLE)(QWidget* pWid, const QString& pwdBookName);
 
 PasswordManager::PasswordManager(QWidget* parent)
   : QMainWindow{parent} {
@@ -30,15 +31,30 @@ PasswordManager::PasswordManager(QWidget* parent)
   mSearchText->setClearButtonEnabled(true);
   mSearchText->addAction(tblEditInst.SEARCH_BY, QLineEdit::ActionPosition::LeadingPosition);
 
+  QToolBar* insertRowsTB = new QToolBar{"Insert Rows", this};
+  insertRowsTB->setOrientation(Qt::Orientation::Vertical);
+  insertRowsTB->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextBesideIcon);
+  insertRowsTB->addAction(tblEditInst.INSERT_A_ROW);
+  insertRowsTB->addAction(tblEditInst.INSERT_ROWS);
+
+  QToolBar* exportTB = new QToolBar{"Export Contents", this};
+  exportTB->setOrientation(Qt::Orientation::Vertical);
+  exportTB->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextBesideIcon);
+  exportTB->addAction(tblEditInst.SHOW_PLAIN_CSV_CONTENT);
+  exportTB->addAction(tblEditInst.EXPORT_TO_PLAIN_CSV);
+
   mToolBar = new QToolBar{"EditToolbar", this};
   mToolBar->setObjectName(mToolBar->windowTitle());
   mToolBar->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextUnderIcon);
-  mToolBar->addActions(tblEditInst.ROW_EDIT_AG->actions());
-  mToolBar->addSeparator();
-  mToolBar->addAction(tblEditInst.EXPORT_TO_PLAIN_CSV);
+  mToolBar->addWidget(insertRowsTB);
+  mToolBar->addAction(tblEditInst.APPEND_ROWS);
+  mToolBar->addAction(tblEditInst.DELETE_ROWS);
   mToolBar->addSeparator();
   mToolBar->addWidget(mSearchText);
   mToolBar->addSeparator();
+  mToolBar->addAction(tblEditInst.LOAD_FROM_INPUT);
+  mToolBar->addWidget(exportTB);
+  mToolBar->addAction(tblEditInst.OPEN_DIRECTORY);
   mToolBar->addAction(tblEditInst.SAVE_CHANGES);
   addToolBar(Qt::ToolBarArea::TopToolBarArea, mToolBar);
   mToolBar->setFont(ViewStyleSheet::TEXT_EDIT_FONT);
@@ -85,6 +101,23 @@ void PasswordManager::Subscribe() {
   connect(mSearchText, &QLineEdit::returnPressed, this, [this]() {
     mAccountListView->SetFilter(mSearchText->text());
   });
+
+  auto& ins = GetTableEditActionsInst();
+  connect(ins.SHOW_PLAIN_CSV_CONTENT,
+          &QAction::triggered,
+          this,
+          &PasswordManager::ShowPlainCSVContents);
+  connect(ins.EXPORT_TO_PLAIN_CSV,
+          &QAction::triggered,
+          mAccountListView,
+          &AccountListView::ExportPlainCSV);
+  connect(ins.LOAD_FROM_INPUT, &QAction::triggered, this, &PasswordManager::onGetRecordsFromInput);
+  connect(ins.OPEN_DIRECTORY, &QAction::triggered, this, [this]() {
+    QUrl url = QUrl::fromLocalFile("./");
+    bool bRet = QDesktopServices::openUrl(url);
+    qDebug("Open local file path");
+  });
+  connect(ins.SAVE_CHANGES, &QAction::triggered, this, &PasswordManager::onSave);
 }
 
 void PasswordManager::SetPWBookName() {
@@ -98,4 +131,53 @@ void PasswordManager::SetPWBookName() {
     title += AccountStorage::PLAIN_CSV_FILE;
   }
   setWindowTitle(title);
+}
+
+void PasswordManager::onSave() {
+  SAVE_RESULT saveResult = mAccountListView->mPwdModel->onSave();
+  QString message;
+  message.reserve(30);
+  message += SAVE_RESULT_STR[(int) saveResult];
+  message += " ";
+  message += "Save Record(s) at ";
+  message += QDateTime::currentDateTime().toString();
+  if (saveResult == SAVE_RESULT::FAILED) {
+    QMessageBox::information(this, "Failed(see details in logs)", message);
+  }
+  mStatusBar->showMessage(message);
+}
+
+void PasswordManager::onGetRecordsFromInput() {
+  if (mTextInputDialog == nullptr) {
+    mTextInputDialog = new CSVInputDialog{this};
+    connect(mTextInputDialog,
+            &CSVInputDialog::accepted,
+            this,
+            &PasswordManager::onLoadRecordsFromCSVInput);
+  }
+  mTextInputDialog->raise();
+  mTextInputDialog->show();
+}
+
+void PasswordManager::onLoadRecordsFromCSVInput() {
+  if (mTextInputDialog->tempAccounts.isEmpty()) {
+    qDebug("No record in CSV plain text input");
+    return;
+  }
+  mAccountListView->mPwdModel->AppendAccountRecords(mTextInputDialog->tempAccounts);
+}
+
+void PasswordManager::ShowPlainCSVContents() {
+  if (mPlainCSVContentWid == nullptr) {
+    mPlainCSVContentWid = new QTextEdit;
+    mPlainCSVContentWid->setAttribute(Qt::WA_DeleteOnClose);
+    mPlainCSVContentWid->setWindowFlags(Qt::Window);  // 关键：设为独立窗口
+    mPlainCSVContentWid->setWindowTitle("Plain CSV Contents Here");
+    mPlainCSVContentWid->setWindowIcon(QIcon{":/edit/SHOW_CSV_CONTENTS"});
+    mPlainCSVContentWid->setReadOnly(true);
+    mPlainCSVContentWid->setMinimumSize(600, 400);
+  }
+  mPlainCSVContentWid->setPlainText(mAccountListView->mPwdModel->GetExportCSVRecords());
+  mPlainCSVContentWid->raise();
+  mPlainCSVContentWid->show();
 }

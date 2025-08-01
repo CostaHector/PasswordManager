@@ -30,7 +30,7 @@ void AccountListView::Subscribe() {
     int userInputCount
         = QInputDialog::getInt(this, method + " Rows Count", "number", 1, 0, 255, 1, &isOk);
     if (!isOk) {
-      qWarning("User input invalid");
+      qWarning("User input row count[%d] invalid", userInputCount);
       return 0;
     }
     return userInputCount;
@@ -54,18 +54,24 @@ void AccountListView::Subscribe() {
     }
   });
   connect(ins.DELETE_ROWS, &QAction::triggered, this, &AccountListView::RemoveSelectedRows);
-  connect(ins.EXPORT_TO_PLAIN_CSV, &QAction::triggered, this, &AccountListView::ExportPlainCSV);
-  connect(ins.SAVE_CHANGES, &QAction::triggered, mPwdModel, [this]() {
-    bool saveResult = mPwdModel->onSave();
-    if (!saveResult) {
-      QMessageBox::information(this, "Save record(s) Failed", "see details in logs");
-    }
-  });
 }
 
 void AccountListView::RemoveSelectedRows() {
   if (!selectionModel()->hasSelection()) {
-    qDebug("nothing were selected. skip remove.");
+    qDebug("Nothing were selected. skip remove.");
+    return;
+  }
+  const int nSelectedRowsCnt = selectionModel()->selectedRows().size();
+  QString msg{QString{"Are you sure to remove the %1 row(s) selected"}.arg(nSelectedRowsCnt)};
+  QMessageBox deleteConfirm;
+  deleteConfirm.setWindowTitle("Delete Confirm");
+  deleteConfirm.setWindowIcon(QIcon(":/edit/DELETE_ROWS"));
+  deleteConfirm.setIcon(QMessageBox::Icon::Question);
+  deleteConfirm.setText(msg);
+  deleteConfirm.addButton(QMessageBox::StandardButton::Ok);
+  deleteConfirm.addButton(QMessageBox::StandardButton::Cancel);
+  if (deleteConfirm.exec() != QMessageBox::StandardButton::Ok) {
+    qDebug("User cancel delete. skip remove.");
     return;
   }
   std::set<int> selectedRows;
@@ -73,7 +79,12 @@ void AccountListView::RemoveSelectedRows() {
     const auto& srcIndex = mSortProxyModel->mapToSource(rowIndex);
     selectedRows.insert(srcIndex.row());
   }
-  mPwdModel->RemoveIndexes(selectedRows);
+  const int rowsDeleted = mPwdModel->RemoveIndexes(selectedRows);
+  if (rowsDeleted != nSelectedRowsCnt) {
+    qWarning("%d/%d row(s) were deleted", rowsDeleted, nSelectedRowsCnt);
+    return;
+  }
+  qWarning("All %d row(s) selected were deleted successfully", nSelectedRowsCnt);
 }
 
 void AccountListView::InsertNRows(int rowCnt) {

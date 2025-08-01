@@ -7,6 +7,7 @@
 
 class AccountListView : public CustomTableView {
 public:
+  friend class PasswordManager;
   explicit AccountListView(QWidget* parent = nullptr);
   void Subscribe();
   void RemoveSelectedRows();

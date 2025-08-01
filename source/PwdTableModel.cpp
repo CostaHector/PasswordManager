@@ -1,10 +1,10 @@
 ﻿#include "PwdTableModel.h"
-#include <QDateTime>
 #include <QFile>
 #include <QIcon>
 #include <QInputDialog>
 #include <QMessageBox>
 #include "CardTemplate.h"
+#include "TableEditActions.h"
 #include <set>
 
 bool AccountSortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const {
@@ -34,6 +34,7 @@ PwdTableModel::PwdTableModel(QObject* parent)
   mType2CardTemplate = InitCardTemplate();
   mLoadResult = mAccountsList.LoadAccounts();
   subscribe();
+  ClearDirty();
 }
 
 QVariant PwdTableModel::data(const QModelIndex& index, int role) const {
@@ -87,7 +88,6 @@ bool PwdTableModel::setData(const QModelIndex& index, const QVariant& value, int
     emit dataChanged(index, index, {Qt::DisplayRole});
   }
   return true;
-  ;
 }
 
 int PwdTableModel::RemoveIndexes(const std::set<int>& rows) {
@@ -139,6 +139,23 @@ bool PwdTableModel::InsertNRows(int indexBefore, int cnt) {
   return true;
 }
 
+int PwdTableModel::AppendAccountRecords(const QVector<AccountInfo>& tempAccounts) {
+  int cnt = tempAccounts.size();
+  if (cnt == 0) {
+    qDebug("No records to insert");
+    return true;
+  }
+
+  int before = rowCount();
+  int after = before + tempAccounts.size();
+
+  RowsCountStartChange(before, after);
+  mAccountsList += tempAccounts;
+  RowsCountEndChange(before, after);
+  SetDirty();
+  return true;
+}
+
 void PwdTableModel::subscribe() {
 }
 
@@ -146,16 +163,31 @@ bool PwdTableModel::ExportToPlainCSV() const {
   return mAccountsList.SaveAccounts(false);
 }
 
-bool PwdTableModel::onSave() {
+SAVE_RESULT PwdTableModel::onSave() {
   if (!IsDirty()) {
     qDebug("Nothing changed. No need to save at all");
-    return true;
+    return SAVE_RESULT::SKIP;
   }
   bool saveResult = mAccountsList.SaveAccounts(true);
   if (saveResult) {
+    qDebug("Save record(s) succeed");
     ClearDirty();
+    return SAVE_RESULT::OK;
   }
-  return saveResult;
+  qWarning("Save record(s) failed");
+  return SAVE_RESULT::FAILED;
+}
+
+void PwdTableModel::ClearDirty() {
+  static auto& ins = GetTableEditActionsInst();
+  ins.SAVE_CHANGES->setEnabled(false);
+  mIsDirty = false;
+}
+
+void PwdTableModel::SetDirty() {
+  static auto& ins = GetTableEditActionsInst();
+  ins.SAVE_CHANGES->setEnabled(true);
+  mIsDirty = true;
 }
 
 AccountInfo* PwdTableModel::rowDataAt(int index) {

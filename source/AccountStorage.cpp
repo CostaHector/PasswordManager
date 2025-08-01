@@ -27,14 +27,20 @@ bool AccountInfo::FromCsvLine(const QString& csvLine, AccountInfo& acc) {
 const QString AccountStorage::ENC_CSV_FILE {"accounts.csv"};
 const QString AccountStorage::PLAIN_CSV_FILE {"plainAccounts.csv"};
 
-// one can save to file to plain text or encrypted by their willing
-bool AccountStorage::SaveAccounts(bool bEncrypt) const {
+QString AccountStorage::GetExportCSVRecords() const{
   QString fullPlainCSVContents;
   fullPlainCSVContents.reserve(2048);
   for (const AccountInfo& acc : mAccounts) {
     fullPlainCSVContents += acc.toCsvLine();
     fullPlainCSVContents += '\n';
   }
+  return fullPlainCSVContents;
+}
+
+
+// one can save to file to plain text or encrypted by their willing
+bool AccountStorage::SaveAccounts(bool bEncrypt) const {
+  QString fullPlainCSVContents = GetExportCSVRecords();
   QString contentNeedDumped;
 
   QFile csvFile;
@@ -95,17 +101,31 @@ bool AccountStorage::LoadAccounts() {
   } else {
     plainContents.swap(contents);
   }
+  int nonEmptyLine{0};
+  decltype(mAccounts) tempAccounts = GetAccountsFromPlainString(plainContents, &nonEmptyLine);
+  mAccounts.swap(tempAccounts);
+  qDebug("%d account record(s) was loaded from %d non empty lines", mAccounts.size(), nonEmptyLine);
+  return true;
+}
+
+QVector<AccountInfo> AccountStorage::GetAccountsFromPlainString(const QString& contents, int* pNonEmptyLine) {
   decltype(mAccounts) tempAccounts;
   AccountInfo acc;
-  for (const QString& line: plainContents.split("\n")) {
+  int nonEmptyLine {0};
+  for (const QString& line: contents.split('\n', Qt::SkipEmptyParts)) {
+    if (line.isEmpty()) {
+      continue;
+    }
+    ++nonEmptyLine;
     if (!AccountInfo::FromCsvLine(line, acc)) {
       continue;
     }
     tempAccounts.push_back(acc);
   }
-  mAccounts.swap(tempAccounts);
-  qDebug("%d item(s) of account was loaded", mAccounts.size());
-  return true;
+  if (pNonEmptyLine != nullptr) {
+    *pNonEmptyLine = nonEmptyLine;
+  }
+  return tempAccounts;
 }
 
 int AccountStorage::RemoveIndexes(const std::set<int>& rows) {
