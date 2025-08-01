@@ -22,4 +22,14 @@ constexpr char SUBMIT_BTN_STYLE[] //
      "}"};
 }
 
+enum class SAVE_RESULT {
+  OK = 0,
+  SKIP = 1,
+  FAILED = 2,
+  BUTT
+};
+constexpr char SAVE_RESULT_STR[(int)SAVE_RESULT::BUTT][10]{
+  "OK", "SKIP", "FAILED"
+};
+
 #endif  // PUBLICVARIABLE_H

@@ -1,21 +1,20 @@
 #ifndef PWDTABLEMODEL_H
 #define PWDTABLEMODEL_H
 
-#include "AccountStorage.h"
-#include "QAbstractTableModelPub.h"
 #include <QSortFilterProxyModel>
+#include "AccountStorage.h"
+#include "PublicVariable.h"
+#include "QAbstractTableModelPub.h"
 #include <set>
 
-class AccountSortFilterProxyModel: public QSortFilterProxyModel {
+class AccountSortFilterProxyModel : public QSortFilterProxyModel {
 public:
   using QSortFilterProxyModel::QSortFilterProxyModel;
-  void BindAccountsList(const AccountStorage& accountsList) {
-    pAccountsList = &accountsList;
-  }
+  void BindAccountsList(const AccountStorage& accountsList) { pAccountsList = &accountsList; }
 
 protected:
   bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
-  const AccountStorage* pAccountsList {nullptr};
+  const AccountStorage* pAccountsList{nullptr};
 };
 
 class PwdTableModel : public QAbstractTableModelPub {
@@ -54,14 +53,13 @@ public:
 
   int RemoveIndexes(const std::set<int>& rows);
   bool InsertNRows(int indexBefore, int cnt);
+  int AppendAccountRecords(const QVector<AccountInfo>& tempAccounts);
+
   void subscribe();
-  bool onSave();
-  void ClearDirty() {
-    mIsDirty = false;
-  }
-  void SetDirty() {
-    mIsDirty = true;
-  }
+  SAVE_RESULT onSave();
+  QString GetExportCSVRecords() const { return mAccountsList.GetExportCSVRecords(); }
+  void ClearDirty();
+  void SetDirty();
   bool IsDirty() const { return mIsDirty; }
   bool ExportToPlainCSV() const;
   AccountInfo* rowDataAt(int index);

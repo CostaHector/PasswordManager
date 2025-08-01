@@ -54,13 +54,6 @@ void AccountListView::Subscribe() {
     }
   });
   connect(ins.DELETE_ROWS, &QAction::triggered, this, &AccountListView::RemoveSelectedRows);
-  connect(ins.EXPORT_TO_PLAIN_CSV, &QAction::triggered, this, &AccountListView::ExportPlainCSV);
-  connect(ins.SAVE_CHANGES, &QAction::triggered, mPwdModel, [this]() {
-    bool saveResult = mPwdModel->onSave();
-    if (!saveResult) {
-      QMessageBox::information(this, "Save record(s) Failed", "see details in logs");
-    }
-  });
 }
 
 void AccountListView::RemoveSelectedRows() {

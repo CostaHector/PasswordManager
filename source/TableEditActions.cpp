@@ -1,4 +1,5 @@
 #include "TableEditActions.h"
+#include "AccountStorage.h"
 
 TableEditActions::TableEditActions(QObject* parent)
   : QObject{parent} {
@@ -11,6 +12,19 @@ TableEditActions::TableEditActions(QObject* parent)
   DELETE_ROWS = new QAction{QIcon{":/edit/DELETE_ROWS"}, "Delete rows"};
   DELETE_ROWS->setToolTip("Delete row(s) selected currently");
 
+  LOAD_FROM_INPUT = new QAction{QIcon{":/edit/LOAD_FROM_INPUT"}, "Load from input"};
+  LOAD_FROM_INPUT->setToolTip("Load records from contents in CSV");
+
+  OPEN_DIRECTORY = new QAction{QIcon{":/OPEN_DIRECTORY"}, "Open Directory"};
+  OPEN_DIRECTORY->setToolTip("Open root directory where following file(s) at: " //
+                             + AccountStorage::PLAIN_CSV_FILE                   //
+                             + ", "                                             //
+                             + AccountStorage::ENC_CSV_FILE//
+                             + ".");
+  SHOW_PLAIN_CSV_CONTENT = new QAction{QIcon{":/edit/SHOW_CSV_CONTENTS"}, "Show CSV Contents"};
+  SHOW_PLAIN_CSV_CONTENT->setToolTip(
+      "Show CSV contents in message box");
+
   EXPORT_TO_PLAIN_CSV = new QAction{QIcon{":/edit/EXPORT"}, "Export Plain CSV"};
   EXPORT_TO_PLAIN_CSV->setToolTip(
       "Export account table records to CSV file in plaintext (<b>unencrypted, human-readable</b>)");
@@ -18,7 +32,7 @@ TableEditActions::TableEditActions(QObject* parent)
   SEARCH_BY = new QAction{QIcon{":/edit/SEARCH_BY"}, "Search by"};
 
   SAVE_CHANGES = new QAction{QIcon{":/edit/SAVE_CHANGES"}, "Save changes"};
-  SAVE_CHANGES->setShortcut(QKeySequence(Qt::Key::Key_F10));
+  SAVE_CHANGES->setShortcut(QKeySequence(Qt::ControlModifier | Qt::Key_S));
   SAVE_CHANGES->setToolTip(QString("<b>%1 (%2)</b><br/>Save All changes to local file.")
                                .arg(SAVE_CHANGES->text(), SAVE_CHANGES->shortcut().toString()));
 

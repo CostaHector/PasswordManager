@@ -6,6 +6,7 @@
         <file alias="WARNING">images/warning.png</file>
         <file alias="FROM_PLAIN_CSV">images/FROM_PLAIN_CSV.svg</file>
         <file alias="FROM_ENCRYPT_CSV">images/FROM_ENCRYPT_CSV.svg</file>
+        <file alias="OPEN_DIRECTORY">images/OPEN_DIRECTORY.svg</file>
     </qresource>
     <qresource prefix="/bankcard">
         <file alias="AMEX">images/amex.png</file>
@@ -21,9 +22,11 @@
         <file alias="INSERT_ROW_BEFORE">images/INSERT_ROW_BEFORE.svg</file>
         <file alias="APPEND_ROWS">images/APPEND_ROWS.svg</file>
         <file alias="INSERT_ROWS">images/INSERT_ROWS.svg</file>
+        <file alias="LOAD_FROM_INPUT">images/LOAD_FROM_INPUT.svg</file>
         <file alias="SAVE_CHANGES">images/SAVE_CHANGES.svg</file>
         <file alias="CREATE_TABLE">images/CREATE_TABLE.svg</file>
         <file alias="SEARCH_BY">images/SEARCH_BY.svg</file>
+        <file alias="SHOW_CSV_CONTENTS">images/SHOW_CSV_CONTENTS.svg</file>
         <file alias="EXPORT">images/EXPORT.svg</file>
         <file alias="SUCCESS">images/SUCCESS.svg</file>
         <file alias="FAILURE">images/FAILURE.svg</file>
