@@ -20,6 +20,7 @@ class PasswordManager : public QMainWindow {
   void SetPWBookName();
 
  private:
+  void onUpdateDetailView(const QModelIndex& proxyIndex);
   void onSave();
   void onGetRecordsFromInput();
   void onLoadRecordsFromCSVInput();

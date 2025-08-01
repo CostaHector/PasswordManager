@@ -1,8 +1,10 @@
 ﻿#include "PasswordManager.h"
 #include <QDateTime>
 #include <QDesktopServices>
+#include <QFileInfo>
 #include <QMessageBox>
 #include <QPlainTextEdit>
+#include "Notificator.h"
 #include "PublicVariable.h"
 #include "SimpleAES.h"
 #include "TableEditActions.h"
@@ -20,8 +22,7 @@ PasswordManager::PasswordManager(QWidget* parent)
   // QSignalBlocker blocker(mAccountListView->selectionModel());
 
   mAccountDetailView = new AccountDetailView{"AccountDetailView", this};
-  mAccountDetailView->setAllowedAreas(Qt::DockWidgetArea::LeftDockWidgetArea
-                                      | Qt::DockWidgetArea::RightDockWidgetArea);
+  mAccountDetailView->setAllowedAreas(Qt::DockWidgetArea::LeftDockWidgetArea | Qt::DockWidgetArea::RightDockWidgetArea);
   addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, mAccountDetailView);
 
   const auto& tblEditInst = GetTableEditActionsInst();
@@ -82,40 +83,25 @@ void PasswordManager::ReadSettings() {
   if (PreferenceSettings().contains("PASSWORD_TABLEVIEW_GEOMETRY")) {
     restoreGeometry(PreferenceSettings().value("PASSWORD_TABLEVIEW_GEOMETRY").toByteArray());
     restoreState(PreferenceSettings().value("PASSWORD_TABLEVIEW_STATE").toByteArray());
-    mAccountDetailView->restoreGeometry(
-        PreferenceSettings().value("ACCOUNT_DETAIL_VIEW_GEOMETRY").toByteArray());
+    mAccountDetailView->restoreGeometry(PreferenceSettings().value("ACCOUNT_DETAIL_VIEW_GEOMETRY").toByteArray());
   } else {
     setGeometry(QRect(0, 0, 1024, 768));
   }
 }
 
 void PasswordManager::Subscribe() {
-  connect(mAccountListView->selectionModel(),
-          &QItemSelectionModel::currentRowChanged,
-          this,
-          [this](const QModelIndex& proxyIndex) {
-            auto* pData = mAccountListView->GetAccountInfoByCurrentIndex(proxyIndex);
-            mAccountDetailView->UpdateDisplay(pData);
-          });
-  mAccountDetailView->BindSetTableDirtyCallback([this]() { mAccountListView->SetTableDirty(); });
-  connect(mSearchText, &QLineEdit::returnPressed, this, [this]() {
-    mAccountListView->SetFilter(mSearchText->text());
-  });
+  connect(mAccountListView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &PasswordManager::onUpdateDetailView);
+  connect(mSearchText, &QLineEdit::returnPressed, this, [this]() { mAccountListView->SetFilter(mSearchText->text()); });
 
   auto& ins = GetTableEditActionsInst();
-  connect(ins.SHOW_PLAIN_CSV_CONTENT,
-          &QAction::triggered,
-          this,
-          &PasswordManager::ShowPlainCSVContents);
-  connect(ins.EXPORT_TO_PLAIN_CSV,
-          &QAction::triggered,
-          mAccountListView,
-          &AccountListView::ExportPlainCSV);
+  connect(ins.SHOW_PLAIN_CSV_CONTENT, &QAction::triggered, this, &PasswordManager::ShowPlainCSVContents);
+  connect(ins.EXPORT_TO_PLAIN_CSV, &QAction::triggered, mAccountListView, &AccountListView::ExportPlainCSV);
   connect(ins.LOAD_FROM_INPUT, &QAction::triggered, this, &PasswordManager::onGetRecordsFromInput);
   connect(ins.OPEN_DIRECTORY, &QAction::triggered, this, [this]() {
-    QUrl url = QUrl::fromLocalFile("./");
+    const QFileInfo fi{"./"};
+    const QUrl url = QUrl::fromLocalFile(fi.absoluteFilePath());
     bool bRet = QDesktopServices::openUrl(url);
-    qDebug("Open local file path");
+    Notificator::information("Open local path", fi.absoluteFilePath() + "\nbResult:" + QString::number(bRet));
   });
   connect(ins.SAVE_CHANGES, &QAction::triggered, this, &PasswordManager::onSave);
 }
@@ -133,16 +119,29 @@ void PasswordManager::SetPWBookName() {
   setWindowTitle(title);
 }
 
+void PasswordManager::onUpdateDetailView(const QModelIndex& proxyIndex) {
+  auto* pData = mAccountListView->GetAccountInfoByCurrentIndex(proxyIndex);
+  mAccountDetailView->UpdateDisplay(pData);
+}
+
 void PasswordManager::onSave() {
   SAVE_RESULT saveResult = mAccountListView->mPwdModel->onSave();
   QString message;
   message.reserve(30);
   message += SAVE_RESULT_STR[(int) saveResult];
-  message += " ";
-  message += "Save Record(s) at ";
+  message += ' ';
+  message += "Try save record(s) at ";
   message += QDateTime::currentDateTime().toString();
-  if (saveResult == SAVE_RESULT::FAILED) {
-    QMessageBox::information(this, "Failed(see details in logs)", message);
+  switch (saveResult) {
+    case SAVE_RESULT::FAILED:
+      Notificator::badNews("Failed to save", message);
+      break;
+    case SAVE_RESULT::SKIP:
+      Notificator::warning("Nothing changed(Skip save)", message);
+      break;
+    default:
+      Notificator::goodNews("Save successfully", message);
+      break;
   }
   mStatusBar->showMessage(message);
 }
@@ -150,10 +149,7 @@ void PasswordManager::onSave() {
 void PasswordManager::onGetRecordsFromInput() {
   if (mTextInputDialog == nullptr) {
     mTextInputDialog = new CSVInputDialog{this};
-    connect(mTextInputDialog,
-            &CSVInputDialog::accepted,
-            this,
-            &PasswordManager::onLoadRecordsFromCSVInput);
+    connect(mTextInputDialog, &CSVInputDialog::accepted, this, &PasswordManager::onLoadRecordsFromCSVInput);
   }
   mTextInputDialog->raise();
   mTextInputDialog->show();
@@ -161,7 +157,7 @@ void PasswordManager::onGetRecordsFromInput() {
 
 void PasswordManager::onLoadRecordsFromCSVInput() {
   if (mTextInputDialog->tempAccounts.isEmpty()) {
-    qDebug("No record in CSV plain text input");
+    Notificator::information("Skip", "No record in CSV plain text input");
     return;
   }
   mAccountListView->mPwdModel->AppendAccountRecords(mTextInputDialog->tempAccounts);
@@ -171,7 +167,7 @@ void PasswordManager::ShowPlainCSVContents() {
   if (mPlainCSVContentWid == nullptr) {
     mPlainCSVContentWid = new QTextEdit;
     mPlainCSVContentWid->setAttribute(Qt::WA_DeleteOnClose);
-    mPlainCSVContentWid->setWindowFlags(Qt::Window);  // 关键：设为独立窗口
+    mPlainCSVContentWid->setWindowFlags(Qt::Window);
     mPlainCSVContentWid->setWindowTitle("Plain CSV Contents Here");
     mPlainCSVContentWid->setWindowIcon(QIcon{":/edit/SHOW_CSV_CONTENTS"});
     mPlainCSVContentWid->setReadOnly(true);

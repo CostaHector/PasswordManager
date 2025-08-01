@@ -7,11 +7,12 @@
 #include "TableEditActions.h"
 #include <set>
 
-bool AccountSortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const {
+bool AccountSortFilterProxyModel::filterAcceptsRow(int sourceRow,
+                                                   const QModelIndex& sourceParent) const {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
-  const QString keyword = filterRegExp().pattern();  // Qt 5
+  const QString keyword = filterRegExp().pattern(); // Qt 5
 #else
-  const QString keyword = filterRegularExpression().pattern();  // Qt 6
+  const QString keyword = filterRegularExpression().pattern(); // Qt 6
 #endif
   if (pAccountsList == nullptr || keyword.isEmpty()) {
     return true;
@@ -34,7 +35,6 @@ PwdTableModel::PwdTableModel(QObject* parent)
   mType2CardTemplate = InitCardTemplate();
   mLoadResult = mAccountsList.LoadAccounts();
   subscribe();
-  ClearDirty();
 }
 
 QVariant PwdTableModel::data(const QModelIndex& index, int role) const {
@@ -84,7 +84,7 @@ bool PwdTableModel::setData(const QModelIndex& index, const QVariant& value, int
     default:
       return false;
     }
-    SetDirty();
+    mAccountsList[index.row()].SetDetailModified();
     emit dataChanged(index, index, {Qt::DisplayRole});
   }
   return true;
@@ -108,7 +108,7 @@ int PwdTableModel::RemoveIndexes(const std::set<int>& rows) {
   RowsCountStartChange(before, after);
   mAccountsList.swap(newAccountsList);
   RowsCountEndChange(before, after);
-  SetDirty();
+  mAccountsList.SetListModified();
   return rowsDeleted;
 }
 
@@ -135,7 +135,7 @@ bool PwdTableModel::InsertNRows(int indexBefore, int cnt) {
   RowsCountStartChange(before, after);
   mAccountsList.swap(newAccountsList);
   RowsCountEndChange(before, after);
-  SetDirty();
+  mAccountsList.SetListModified();
   return true;
 }
 
@@ -152,12 +152,11 @@ int PwdTableModel::AppendAccountRecords(const QVector<AccountInfo>& tempAccounts
   RowsCountStartChange(before, after);
   mAccountsList += tempAccounts;
   RowsCountEndChange(before, after);
-  SetDirty();
+  mAccountsList.SetListModified();
   return true;
 }
 
-void PwdTableModel::subscribe() {
-}
+void PwdTableModel::subscribe() {}
 
 bool PwdTableModel::ExportToPlainCSV() const {
   return mAccountsList.SaveAccounts(false);
@@ -169,25 +168,12 @@ SAVE_RESULT PwdTableModel::onSave() {
     return SAVE_RESULT::SKIP;
   }
   bool saveResult = mAccountsList.SaveAccounts(true);
-  if (saveResult) {
-    qDebug("Save record(s) succeed");
-    ClearDirty();
-    return SAVE_RESULT::OK;
+  if (!saveResult) {
+    qWarning("Save record(s) failed");
+    return SAVE_RESULT::FAILED;
   }
-  qWarning("Save record(s) failed");
-  return SAVE_RESULT::FAILED;
-}
-
-void PwdTableModel::ClearDirty() {
-  static auto& ins = GetTableEditActionsInst();
-  ins.SAVE_CHANGES->setEnabled(false);
-  mIsDirty = false;
-}
-
-void PwdTableModel::SetDirty() {
-  static auto& ins = GetTableEditActionsInst();
-  ins.SAVE_CHANGES->setEnabled(true);
-  mIsDirty = true;
+  qDebug("Save record(s) succeed");
+  return SAVE_RESULT::OK;
 }
 
 AccountInfo* PwdTableModel::rowDataAt(int index) {

@@ -58,9 +58,7 @@ public:
   void subscribe();
   SAVE_RESULT onSave();
   QString GetExportCSVRecords() const { return mAccountsList.GetExportCSVRecords(); }
-  void ClearDirty();
-  void SetDirty();
-  bool IsDirty() const { return mIsDirty; }
+  bool IsDirty() const { return mAccountsList.IsDataDirty(); }
   bool ExportToPlainCSV() const;
   AccountInfo* rowDataAt(int index);
   bool GetLoadResult() const { return mLoadResult; }

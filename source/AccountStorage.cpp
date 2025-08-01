@@ -64,6 +64,7 @@ bool AccountStorage::SaveAccounts(bool bEncrypt) const {
   out.setCodec("UTF-8");
   out << contentNeedDumped;
   csvFile.close();
+  AfterSave();
   qDebug("%d byte(s) of %d record(s) dumped into %s succced", fullPlainCSVContents.size(), size(), qPrintable(csvFile.fileName()));
   return true;
 }
@@ -104,6 +105,7 @@ bool AccountStorage::LoadAccounts() {
   int nonEmptyLine{0};
   decltype(mAccounts) tempAccounts = GetAccountsFromPlainString(plainContents, &nonEmptyLine);
   mAccounts.swap(tempAccounts);
+  SetListModified();
   qDebug("%d account record(s) was loaded from %d non empty lines", mAccounts.size(), nonEmptyLine);
   return true;
 }
@@ -138,6 +140,7 @@ int AccountStorage::RemoveIndexes(const std::set<int>& rows) {
     mAccounts.removeAt(*rit);
   }
   qDebug("row size changed from %d->%d(given %lluu row indexes)", beforeRowCnt, size(), rows.size());
+  SetListModified();
   return beforeRowCnt - size();
 }
 
@@ -152,6 +155,7 @@ bool AccountStorage::InsertNRows(int indexBefore, int cnt) {
     indexBefore = size();
   }
   mAccounts.insert(indexBefore, cnt, AccountInfo{});
+  SetListModified();
   return true;
 }
 

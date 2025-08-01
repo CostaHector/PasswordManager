@@ -31,4 +31,8 @@
         <file alias="SUCCESS">images/SUCCESS.svg</file>
         <file alias="FAILURE">images/FAILURE.svg</file>
     </qresource>
+    <qresource prefix="/img">
+        <file alias="SAVED">images/SAVED.svg</file>
+        <file alias="NOT_SAVED">images/NOT_SAVED.svg</file>
+    </qresource>
 </RCC>
