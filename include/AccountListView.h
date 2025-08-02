@@ -24,6 +24,7 @@ public:
     }
     mSortProxyModel->setFilterFixedString(keywords);
   }
+
 private:
   bool ExportPlainCSV();
   PwdTableModel* mPwdModel{nullptr};

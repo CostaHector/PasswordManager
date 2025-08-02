@@ -3,56 +3,17 @@
 
 #include <QStringList>
 #include <QVariant>
+#include "AccountInfo.h"
 #include <set>
-
-struct AccountInfo {
-public:
-  AccountInfo(const QString& _typeStr,
-              const QString& _nameStr,
-              const QString& _accountStr,
-              const QString& _pwdStr,
-              const QString& _othersStr)
-    : typeStr{_typeStr}
-    , nameStr{_nameStr}
-    , accountStr{_accountStr}
-    , pwdStr{_pwdStr}
-    , othersStr{_othersStr} {}
-  AccountInfo() = default;
-
-  bool IsContainsKeyWords(const QString& keywords) const {
-    return keywords.isEmpty() || typeStr.contains(keywords, Qt::CaseSensitivity::CaseInsensitive)
-           || nameStr.contains(keywords, Qt::CaseSensitivity::CaseInsensitive)
-           || accountStr.contains(keywords, Qt::CaseSensitivity::CaseInsensitive)
-           || pwdStr.contains(keywords, Qt::CaseSensitivity::CaseInsensitive)
-           || othersStr.contains(keywords, Qt::CaseSensitivity::CaseInsensitive);
-  }
-
-  QString toCsvLine() const;
-  static bool FromCsvLine(const QString& csvLine, AccountInfo& acc);
-  static const QStringList HORIZONTAL_HEAD;
-
-  QString typeStr;
-  QString nameStr;
-  QString accountStr;
-  QString pwdStr;
-  QString othersStr;
-
-  void SetDetailModified() const { mIsDetailModified = true; }
-  void ClearDetailModified() const { mIsDetailModified = false; }
-  bool IsDetailModified() const { return mIsDetailModified; }
-
-private:
-  mutable bool mIsDetailModified{false};
-};
 
 struct AccountStorage {
 public:
   static const QString ENC_CSV_FILE;
-  static const QString PLAIN_CSV_FILE;
+  static const QString EXPORTED_PLAIN_CSV_FILE;
+  static const bool IsAccountCSVFileInExistOrEmpty();
 
   // plain Utf8 -> list<Account>
-  static QVector<AccountInfo> GetAccountsFromPlainString(const QString& contents,
-                                                         int* pNonEmptyLine = nullptr);
+  static QVector<AccountInfo> GetAccountsFromPlainString(const QString& contents, int* pNonEmptyLine = nullptr);
   // encrypted base64 -> encrypted binary -> plain binary -> plain Utf8 -> list<Account>
   bool LoadAccounts();
 
@@ -88,11 +49,27 @@ public:
     ClearAllDetailModified();
   }
 
-  void SetListModified() const { mIsListModifed = true; }
+  void SetListModified(int n = 1) const {
+    mIsListModifed = true;
+    mRowsModifiedCount += n;
+  }
+
+  QString GetRowChangeDetailMessage() const {
+    QString msg;
+    msg.reserve(30);
+    msg += QString::number(mRowsModifiedCount);
+    msg += " row(s) Changed. Detail text bChanged: ";
+    msg += QString::number(IsAnyDetailModified());
+    return msg;
+  }
 
 private:
   mutable bool mIsListModifed{false};
-  void ClearListModified() const { mIsListModifed = false; }
+  mutable int mRowsModifiedCount{0};
+  void ClearListModified() const {
+    mIsListModifed = false;
+    mRowsModifiedCount = 0;
+  }
 
   mutable std::set<int> mDetailModifiedIndexes;
   bool IsAnyDetailModified() const {

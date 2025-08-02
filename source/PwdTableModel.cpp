@@ -7,8 +7,7 @@
 #include "TableEditActions.h"
 #include <set>
 
-bool AccountSortFilterProxyModel::filterAcceptsRow(int sourceRow,
-                                                   const QModelIndex& sourceParent) const {
+bool AccountSortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const {
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
   const QString keyword = filterRegExp().pattern(); // Qt 5
 #else
@@ -47,16 +46,16 @@ QVariant PwdTableModel::data(const QModelIndex& index, int role) const {
   if (role == Qt::DisplayRole || role == Qt::EditRole) {
     const int section = index.column();
     switch (section) {
-    case 0:
-      return index.row();
-    case 1:
-      return mAccountsList[index.row()].typeStr;
-    case 2:
-      return mAccountsList[index.row()].nameStr;
-    case 3:
-      return mAccountsList[index.row()].accountStr;
-    default:
-      return QVariant();
+      case 0:
+        return index.row();
+      case 1:
+        return mAccountsList[index.row()].typeStr;
+      case 2:
+        return mAccountsList[index.row()].nameStr;
+      case 3:
+        return mAccountsList[index.row()].accountStr;
+      default:
+        return QVariant();
     }
   } else if (role == Qt::TextAlignmentRole) {
     return int(Qt::AlignLeft);
@@ -72,17 +71,17 @@ bool PwdTableModel::setData(const QModelIndex& index, const QVariant& value, int
   if (role == Qt::EditRole) { // 0: value
     const int section = index.column();
     switch (section) {
-    case 1:
-      mAccountsList[index.row()].typeStr = value.toString();
-      break;
-    case 2:
-      mAccountsList[index.row()].nameStr = value.toString();
-      break;
-    case 3:
-      mAccountsList[index.row()].accountStr = value.toString();
-      break;
-    default:
-      return false;
+      case 1:
+        mAccountsList[index.row()].typeStr = value.toString();
+        break;
+      case 2:
+        mAccountsList[index.row()].nameStr = value.toString();
+        break;
+      case 3:
+        mAccountsList[index.row()].accountStr = value.toString();
+        break;
+      default:
+        return false;
     }
     mAccountsList[index.row()].SetDetailModified();
     emit dataChanged(index, index, {Qt::DisplayRole});
@@ -93,22 +92,19 @@ bool PwdTableModel::setData(const QModelIndex& index, const QVariant& value, int
 int PwdTableModel::RemoveIndexes(const std::set<int>& rows) {
   if (rows.empty()) {
     qDebug("no row need to be delete");
-    return true;
+    return 0;
   }
-
-  int before = rowCount();
-  auto newAccountsList{mAccountsList};
-  int rowsDeleted = newAccountsList.RemoveIndexes(rows);
-  if (rowsDeleted == 0) {
-    qDebug("no row deleted, no need change row count");
-    return true;
+  const int cnt = rows.size();
+  const int before = rowCount();
+  if (cnt > before) {
+    qWarning("delete row(s) count %d > total count %d", cnt, before);
+    return -1;
   }
-  int after = newAccountsList.size();
-
+  const int after = before - cnt;
   RowsCountStartChange(before, after);
-  mAccountsList.swap(newAccountsList);
+  int rowsDeleted = mAccountsList.RemoveIndexes(rows);
+  qDebug("%d/%d row(s) were deleted", rowsDeleted, cnt);
   RowsCountEndChange(before, after);
-  mAccountsList.SetListModified();
   return rowsDeleted;
 }
 
@@ -123,19 +119,14 @@ bool PwdTableModel::InsertNRows(int indexBefore, int cnt) {
   if (indexBefore >= rowCount()) {
     indexBefore = rowCount();
   }
-
-  int before = rowCount();
-  auto newAccountsList{mAccountsList};
-  if (!newAccountsList.InsertNRows(indexBefore, cnt)) {
+  const int before = rowCount();
+  const int after = before + cnt;
+  RowsCountStartChange(before, after);
+  if (!mAccountsList.InsertNRows(indexBefore, cnt)) {
     qDebug("insert before index[%d] %d rows failed", indexBefore, cnt);
     return false;
   }
-  int after = newAccountsList.size();
-
-  RowsCountStartChange(before, after);
-  mAccountsList.swap(newAccountsList);
   RowsCountEndChange(before, after);
-  mAccountsList.SetListModified();
   return true;
 }
 
@@ -152,7 +143,6 @@ int PwdTableModel::AppendAccountRecords(const QVector<AccountInfo>& tempAccounts
   RowsCountStartChange(before, after);
   mAccountsList += tempAccounts;
   RowsCountEndChange(before, after);
-  mAccountsList.SetListModified();
   return true;
 }
 
@@ -162,7 +152,7 @@ bool PwdTableModel::ExportToPlainCSV() const {
   return mAccountsList.SaveAccounts(false);
 }
 
-SAVE_RESULT PwdTableModel::onSave() {
+SAVE_RESULT PwdTableModel::onSave(QString* detailMessage) {
   if (!IsDirty()) {
     qDebug("Nothing changed. No need to save at all");
     return SAVE_RESULT::SKIP;
@@ -172,7 +162,11 @@ SAVE_RESULT PwdTableModel::onSave() {
     qWarning("Save record(s) failed");
     return SAVE_RESULT::FAILED;
   }
-  qDebug("Save record(s) succeed");
+  QString detailMsg = mAccountsList.GetRowChangeDetailMessage();
+  if (detailMessage != nullptr) {
+    *detailMessage = detailMsg;
+  }
+  qDebug("Save [%s] succeed.", qPrintable(detailMsg));
   return SAVE_RESULT::OK;
 }
 

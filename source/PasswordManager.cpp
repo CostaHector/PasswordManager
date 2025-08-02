@@ -114,7 +114,7 @@ void PasswordManager::SetPWBookName() {
   if (SimpleAES::getFromEncrypt()) {
     title += AccountStorage::ENC_CSV_FILE;
   } else {
-    title += AccountStorage::PLAIN_CSV_FILE;
+    title += AccountStorage::EXPORTED_PLAIN_CSV_FILE;
   }
   setWindowTitle(title);
 }
@@ -125,7 +125,9 @@ void PasswordManager::onUpdateDetailView(const QModelIndex& proxyIndex) {
 }
 
 void PasswordManager::onSave() {
-  SAVE_RESULT saveResult = mAccountListView->mPwdModel->onSave();
+  QString changedMessage;
+  SAVE_RESULT saveResult = mAccountListView->mPwdModel->onSave(&changedMessage);
+
   QString message;
   message.reserve(30);
   message += SAVE_RESULT_STR[(int) saveResult];
@@ -140,7 +142,7 @@ void PasswordManager::onSave() {
       Notificator::warning("Nothing changed(Skip save)", message);
       break;
     default:
-      Notificator::goodNews("Save successfully", message);
+      Notificator::goodNews("Save successfully", changedMessage);
       break;
   }
   mStatusBar->showMessage(message);
