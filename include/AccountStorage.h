@@ -55,10 +55,8 @@ public:
   }
 
   QString GetRowChangeDetailMessage() const {
-    static const QString FORMAT_STRING{"%1 row(s) changed and %2 detail(s) changed."};
-
-    QString msg{FORMAT_STRING.arg(mRowsModifiedCount).arg(mDetailModifiedIndexes.size())};
-    return msg;
+    static const QString FORMAT_STRING = QStringLiteral("%1 row(s) changed and %2 detail(s) changed.");
+    return FORMAT_STRING.arg(mRowsModifiedCount).arg(mDetailModifiedIndexes.size());
   }
 
 private:

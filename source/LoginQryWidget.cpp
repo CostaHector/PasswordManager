@@ -116,11 +116,16 @@ QWidget *LoginQryWidget::CreateLoginPage() {
       }
     }
     if (autoLoginState == Qt::CheckState::Checked) {
+      static constexpr int TIMER_LENGTH_MS = 2000;
+      loginButtonBox->setEnabled(false);
+      messageLabel->setText("Auto login in " + QString::number(TIMER_LENGTH_MS / 1000) + " seconds");
+
       QTimer *autoLoginTimer = new QTimer(this);
-      autoLoginTimer->setInterval(2000);
+      autoLoginTimer->setInterval(TIMER_LENGTH_MS);
       autoLoginTimer->setSingleShot(true);
-      messageLabel->setText("Auto login in " + QString::number(autoLoginTimer->interval() / 1000) + " seconds");
-      connect(autoLoginTimer, &QTimer::timeout, this, [loginButtonBox, autoLogin]() {
+      connect(autoLoginTimer, &QTimer::timeout, this, [loginButtonBox, autoLogin, messageLabel]() {
+        loginButtonBox->setEnabled(true);
+        messageLabel->clear();
         if (autoLogin->isChecked()) {
           emit loginButtonBox->accepted();
         }
