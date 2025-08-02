@@ -101,7 +101,7 @@ bool AccountStorage::LoadAccounts() {
   int nonEmptyLine{0};
   decltype(mAccounts) tempAccounts = GetAccountsFromPlainString(plainContents, &nonEmptyLine);
   mAccounts.swap(tempAccounts);
-  SetListModified();
+  // SetListModified(); here mAccounts is same as file contents, we consider it has no modification
   qDebug("%d account record(s) was loaded from %d non empty lines", mAccounts.size(), nonEmptyLine);
   return true;
 }
