@@ -1,6 +1,7 @@
 #ifndef WINCREDUTIL_H
 #define WINCREDUTIL_H
 
+#ifdef _WIN32
 // clang-format off
 #include <windows.h>
 #include <wincred.h>
@@ -16,5 +17,6 @@ public:
 private:
   static bool credentialExists(const QString &key);
 };
+#endif
 
 #endif

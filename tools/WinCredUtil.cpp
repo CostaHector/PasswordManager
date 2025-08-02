@@ -1,5 +1,5 @@
 #include "WinCredUtil.h"
-
+#ifdef _WIN32
 bool WinCredUtil::credentialExists(const QString &key) {
   PCREDENTIALW pcred;
   return CredReadW(key.toStdWString().c_str(), CRED_TYPE_GENERIC, 0, &pcred);
@@ -49,3 +49,4 @@ bool WinCredUtil::deletePassword(const QString &key) {
   std::wstring wkey = key.toStdWString();
   return CredDeleteW(wkey.c_str(), CRED_TYPE_GENERIC, 0);
 }
+#endif

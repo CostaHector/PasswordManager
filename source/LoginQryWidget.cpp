@@ -84,6 +84,7 @@ QWidget *LoginQryWidget::CreateLoginPage() {
   });
   connect(remeberKey, &QCheckBox::stateChanged, this, [inputKeyLe](int state) {
     PreferenceSettings().setValue("REMEMBER_KEY", state);
+#ifdef _WIN32
     if (state == Qt::Checked && !inputKeyLe->text().isEmpty()) {
       if (!WinCredUtil::savePassword("PASSWORD_MANAGER_AES_KEY", inputKeyLe->text())) {
         qWarning("Failed to save password to Windows Credential Manager");
@@ -91,6 +92,7 @@ QWidget *LoginQryWidget::CreateLoginPage() {
     } else {
       WinCredUtil::deletePassword("PASSWORD_MANAGER_AES_KEY");
     }
+#endif
   });
   connect(autoLogin, &QCheckBox::stateChanged, this, [](int state) { PreferenceSettings().setValue("LOG_IN_AUTOMATICALLY", state); });
 
@@ -102,6 +104,7 @@ QWidget *LoginQryWidget::CreateLoginPage() {
     messageLabel->setText("Register first! " + msg);
     qWarning("Register first! %s", qPrintable(msg));
   } else {
+#ifdef _WIN32
     // allowed login
     if (rememberState == Qt::CheckState::Checked) {
       const QString aesKey = WinCredUtil::readPassword("PASSWORD_MANAGER_AES_KEY");
@@ -117,6 +120,7 @@ QWidget *LoginQryWidget::CreateLoginPage() {
       connect(autoLoginTimer, &QTimer::timeout, this, [loginButtonBox]() { emit loginButtonBox->accepted(); });
       autoLoginTimer->start();
     }
+#endif
   }
   return loginWid;
 }
