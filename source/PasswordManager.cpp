@@ -109,10 +109,10 @@ void PasswordManager::Subscribe() {
   connect(ins.EXPORT_TO_PLAIN_CSV, &QAction::triggered, mAccountListView, &AccountListView::ExportPlainCSV);
   connect(ins.LOAD_FROM_INPUT, &QAction::triggered, this, &PasswordManager::onGetRecordsFromInput);
   connect(ins.OPEN_DIRECTORY, &QAction::triggered, this, [this]() {
-    const QFileInfo fi{"./"};
-    const QUrl url = QUrl::fromLocalFile(fi.absoluteFilePath());
+    static const QString workPath {QFileInfo(AccountStorage::GetFullEncCsvFilePath()).absolutePath()};
+    static const QUrl url = QUrl::fromLocalFile(workPath);
     bool bRet = QDesktopServices::openUrl(url);
-    Notificator::information("Open local path", fi.absoluteFilePath() + "\nbResult:" + QString::number(bRet));
+    Notificator::information("Open local path", workPath + "\nbResult:" + QString::number(bRet));
   });
   connect(ins.SAVE_CHANGES, &QAction::triggered, this, &PasswordManager::onSave);
 }

@@ -1,11 +1,12 @@
 #include "AccountListView.h"
+#include <QDateTime>
 #include <QHeaderView>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QPushButton>
+#include "Notificator.h"
 #include "PublicVariable.h"
 #include "TableEditActions.h"
-#include <qdatetime.h>
-#include <qpushbutton.h>
 #include <set>
 
 AccountListView::AccountListView(QWidget* parent)
@@ -27,8 +28,7 @@ AccountListView::AccountListView(QWidget* parent)
 void AccountListView::Subscribe() {
   static const auto GetRowsCountFromUserInput = [this](const QString& method) -> int {
     bool isOk{false};
-    int userInputCount
-        = QInputDialog::getInt(this, method + " Rows Count", "number", 1, 0, 255, 1, &isOk);
+    int userInputCount = QInputDialog::getInt(this, method + " Rows Count", "number", 1, 0, 255, 1, &isOk);
     if (!isOk) {
       qWarning("User input row count[%d] invalid", userInputCount);
       return 0;
@@ -123,8 +123,7 @@ bool AccountListView::ExportPlainCSV() {
   QMessageBox confirmDialog(this);
   confirmDialog.setWindowTitle("Export Plaintext List?");
   confirmDialog.setWindowIcon(QIcon(":/edit/EXPORT"));
-  confirmDialog.setText(
-      "WARNING: This may cause <b>information leakage</b>. Please keep the exported file secure.");
+  confirmDialog.setText("WARNING: This may cause <b>information leakage</b>. Please keep the exported file secure.");
   confirmDialog.setIcon(QMessageBox::Warning);
 
   QPushButton* exportButton = confirmDialog.addButton("Continue Export", QMessageBox::AcceptRole);
@@ -139,8 +138,7 @@ bool AccountListView::ExportPlainCSV() {
   }
   bool exportResult = mPwdModel->ExportToPlainCSV();
   if (!exportResult) {
-    qInfo("Failed to export plaintext CSV at %s",
-          qPrintable(QDateTime::currentDateTime().toString()));
+    qInfo("Failed to export plaintext CSV at %s", qPrintable(QDateTime::currentDateTime().toString()));
     QMessageBox failedMsgBox(this);
     failedMsgBox.setWindowTitle("Export failed!");
     failedMsgBox.setWindowIcon(QIcon(":/edit/EXPORT"));
@@ -150,14 +148,7 @@ bool AccountListView::ExportPlainCSV() {
     failedMsgBox.exec();
     return false;
   }
-  qInfo("Plaintext CSV exported at %s successfully",
-        qPrintable(QDateTime::currentDateTime().toString()));
-  QMessageBox succeedMsgBox(this);
-  succeedMsgBox.setWindowTitle("Export succeeded");
-  succeedMsgBox.setWindowIcon(QIcon(":/edit/EXPORT"));
-  succeedMsgBox.setText("Please <b>store the file securely</b>.");
-  succeedMsgBox.setIconPixmap(QPixmap(":/imgs/SAVED"));
-  succeedMsgBox.setStandardButtons(QMessageBox::Ok);
-  succeedMsgBox.exec();
+  qInfo("Plaintext CSV exported at %s successfully", qPrintable(QDateTime::currentDateTime().toString()));
+  Notificator::goodNews("Export succeeded", "Please <b>store the file securely</b>.");
   return true;
 }
