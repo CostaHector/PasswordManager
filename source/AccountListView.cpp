@@ -62,16 +62,16 @@ void AccountListView::RemoveSelectedRows() {
     return;
   }
   const int nSelectedRowsCnt = selectionModel()->selectedRows().size();
-  QString msg{QString{"Are you sure to remove the %1 row(s) selected(NOT RECOVERABLE)"}.arg(nSelectedRowsCnt)};
+  QString msg{QString{"Are you sure to remove the %1 row(s) selected?<br/><b>NOT RECOVERABLE</b>"}.arg(nSelectedRowsCnt)};
   QMessageBox deleteConfirm;
-  deleteConfirm.setWindowTitle("Delete Confirm");
+  deleteConfirm.setWindowTitle("Delete Confirm?");
   deleteConfirm.setWindowIcon(QIcon(":/edit/DELETE_ROWS"));
   deleteConfirm.setIcon(QMessageBox::Icon::Warning);
   deleteConfirm.setText(msg);
   deleteConfirm.addButton(QMessageBox::StandardButton::Ok);
   deleteConfirm.addButton(QMessageBox::StandardButton::Cancel);
   if (deleteConfirm.exec() != QMessageBox::StandardButton::Ok) {
-    qDebug("User cancel delete. skip remove.");
+    qDebug("User cancel delete. skip remove records.");
     return;
   }
   std::set<int> selectedRows;

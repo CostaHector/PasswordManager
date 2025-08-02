@@ -8,8 +8,8 @@
 
 struct AccountStorage {
 public:
-  static const QString ENC_CSV_FILE;
-  static const QString EXPORTED_PLAIN_CSV_FILE;
+  static const QString& GetFullEncCsvFilePath();
+  static const QString& GetFullPlainCsvFilePath();
   static const bool IsAccountCSVFileInExistOrEmpty();
 
   // plain Utf8 -> list<Account>

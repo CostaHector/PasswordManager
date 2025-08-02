@@ -12,15 +12,15 @@ LoginQryWidget::LoginQryWidget(QWidget *parent)
   setFont(ViewStyleSheet::TEXT_EDIT_FONT);
 
   mLoginRegisterTab = new QTabBar;
-  mLoginRegisterTab->addTab(QIcon(":/FROM_ENCRYPT_CSV"), "Login");
-  mLoginRegisterTab->addTab(QIcon(":/FROM_PLAIN_CSV"), "Register");
+  mLoginRegisterTab->addTab(QIcon(":/LOGIN"), "Login");
+  mLoginRegisterTab->addTab(QIcon(":/REGISTER"), "Register");
   mLoginRegisterTab->setShape(QTabBar::RoundedNorth);
 
   mLoginRegisterStkLo = new QStackedLayout;
   mLoginWid = CreateLoginPage();
-  mLoginRegisterStkLo->insertWidget(ENCRYPT, mLoginWid);
+  mLoginRegisterStkLo->addWidget(mLoginWid);
   mRegisterWid = CreateRegisterPage();
-  mLoginRegisterStkLo->insertWidget(PLAIN, mRegisterWid);
+  mLoginRegisterStkLo->addWidget(mRegisterWid);
 
   mMainLayout = new QVBoxLayout;
   mMainLayout->addWidget(mLoginRegisterTab);
@@ -94,13 +94,16 @@ QWidget *LoginQryWidget::CreateLoginPage() {
     }
 #endif
   });
-  connect(autoLogin, &QCheckBox::stateChanged, this, [](int state) { PreferenceSettings().setValue("LOG_IN_AUTOMATICALLY", state); });
+  connect(autoLogin, &QCheckBox::stateChanged, this, [messageLabel](int state) {
+    PreferenceSettings().setValue("LOG_IN_AUTOMATICALLY", state);
+    messageLabel->setText(state == Qt::Checked ? "Auto login switch on" : "Auto login switch off");
+  });
 
   connect(loginButtonBox, &QDialogButtonBox::rejected, this, &QDialog::close);
   if (AccountStorage::IsAccountCSVFileInExistOrEmpty()) {
     // login disable, register at first
     loginWid->setEnabled(false);
-    const QString msg{"File [" + AccountStorage::ENC_CSV_FILE + "] not exists."};
+    static const QString msg{"File [" + AccountStorage::GetFullEncCsvFilePath() + "] not exists."};
     messageLabel->setText("Register first! " + msg);
     qWarning("Register first! %s", qPrintable(msg));
   } else {
@@ -117,7 +120,11 @@ QWidget *LoginQryWidget::CreateLoginPage() {
       autoLoginTimer->setInterval(2000);
       autoLoginTimer->setSingleShot(true);
       messageLabel->setText("Auto login in " + QString::number(autoLoginTimer->interval() / 1000) + " seconds");
-      connect(autoLoginTimer, &QTimer::timeout, this, [loginButtonBox]() { emit loginButtonBox->accepted(); });
+      connect(autoLoginTimer, &QTimer::timeout, this, [loginButtonBox, autoLogin]() {
+        if (autoLogin->isChecked()) {
+          emit loginButtonBox->accepted();
+        }
+      });
       autoLoginTimer->start();
     }
 #endif
@@ -158,7 +165,7 @@ QWidget *LoginQryWidget::CreateRegisterPage() {
   if (!AccountStorage::IsAccountCSVFileInExistOrEmpty()) {
     // register disabled, login allowed
     registerWid->setEnabled(false);
-    const QString msg{"File [" + AccountStorage::ENC_CSV_FILE + "] already exists."};
+    static const QString msg{"File [" + AccountStorage::GetFullEncCsvFilePath() + "] already exists."};
     messageLabel->setText("Override danger! " + msg);
   }
   return registerWid;
@@ -166,8 +173,4 @@ QWidget *LoginQryWidget::CreateRegisterPage() {
 
 void LoginQryWidget::Subscribe() {
   connect(mLoginRegisterTab, &QTabBar::currentChanged, mLoginRegisterStkLo, &QStackedLayout::setCurrentIndex);
-}
-
-std::pair<bool, QString> LoginQryWidget::GetEncryptAndKey() const {
-  return {isEncryptedSource(), getAESKey()};
 }

@@ -2,12 +2,32 @@
 #include <QFile>
 #include <QRegularExpression>
 #include <QTextStream>
+#include <QStandardPaths>
+#include <QDir>
 #include "SimpleAES.h"
 
-const QString AccountStorage::ENC_CSV_FILE {"accounts.csv"};
-const QString AccountStorage::EXPORTED_PLAIN_CSV_FILE {"exportedPlainAccounts.csv"};
+const QString& AccountStorage::GetFullEncCsvFilePath() {
+  static const QString homePath = QDir::homePath();
+  if (!QDir{homePath}.exists(PROJECT_NAME)) {
+    QDir{homePath}.mkpath(PROJECT_NAME);
+  }
+  static constexpr char ENC_CSV_FILE[] {"accounts.csv"};
+  static const QString absEncFilePath = QDir::toNativeSeparators(homePath + '/' + PROJECT_NAME + '/' + ENC_CSV_FILE);
+  return absEncFilePath;
+}
+
+const QString& AccountStorage::GetFullPlainCsvFilePath() {
+  static const QString homePath = QDir::homePath();
+  if (!QDir{homePath}.exists(PROJECT_NAME)) {
+    QDir{homePath}.mkpath(PROJECT_NAME);
+  }
+  static constexpr char EXPORTED_PLAIN_CSV_FILE[] {"exportedPlainAccounts.csv"};
+  static const QString absPlainFilePath = QDir::toNativeSeparators(homePath + '/' + PROJECT_NAME + '/' + EXPORTED_PLAIN_CSV_FILE);;
+  return absPlainFilePath;
+}
+
 const bool AccountStorage::IsAccountCSVFileInExistOrEmpty() {
-  QFile csvFile{ENC_CSV_FILE};
+  QFile csvFile{GetFullEncCsvFilePath()};
   return !csvFile.exists() || csvFile.size() == 0;
 }
 
@@ -29,14 +49,14 @@ bool AccountStorage::SaveAccounts(bool bEncrypt) const {
 
   QFile csvFile;
   if (bEncrypt) {
-    csvFile.setFileName(ENC_CSV_FILE);
+    csvFile.setFileName(GetFullEncCsvFilePath());
     bool encryptedResult = SimpleAES::encrypt_GCM(fullPlainCSVContents, contentNeedDumped);
     if (!encryptedResult) {
       qCritical("Encrypt file[%s] failed! Skip write into file!", qPrintable(csvFile.fileName()));
       return false;
     }
   } else {
-    csvFile.setFileName(EXPORTED_PLAIN_CSV_FILE);
+    csvFile.setFileName(GetFullPlainCsvFilePath());
     contentNeedDumped.swap(fullPlainCSVContents);
   }
   if (!csvFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -55,7 +75,9 @@ bool AccountStorage::SaveAccounts(bool bEncrypt) const {
 
 // when start on, data is from plain or encrypted is determined
 bool AccountStorage::LoadAccounts() {
-  QFile csvFile{ENC_CSV_FILE};
+  const QString s1 = GetFullEncCsvFilePath();
+
+  QFile csvFile{GetFullEncCsvFilePath()};
   if (!csvFile.exists()) {
     qWarning("File[%s] not exist. Create a new one when save them", qPrintable(csvFile.fileName()));
     return true;

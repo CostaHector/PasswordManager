@@ -4,8 +4,8 @@
         <file alias="PASSWORD_TABLE">images/PASSWORD_TABLE.png</file>
         <file alias="AES_KEY">images/aes_key.png</file>
         <file alias="WARNING">images/warning.png</file>
-        <file alias="FROM_PLAIN_CSV">images/FROM_PLAIN_CSV.svg</file>
-        <file alias="FROM_ENCRYPT_CSV">images/FROM_ENCRYPT_CSV.svg</file>
+        <file alias="LOGIN">images/LOGIN.svg</file>
+        <file alias="REGISTER">images/REGISTER.svg</file>
         <file alias="OPEN_DIRECTORY">images/OPEN_DIRECTORY.svg</file>
     </qresource>
     <qresource prefix="/bankcard">

@@ -14,7 +14,6 @@
 class SimpleAES {
 private:
   static QString KEY; // 由用户登录时输入
-  static bool BDataFromEncrypt;
   static bool isValidDecryption(const QString &text) { return !text.trimmed().isEmpty(); }
 
 public:
@@ -30,10 +29,6 @@ public:
       return;
     }
     KEY = userInputKey;
-  }
-  static bool getFromEncrypt() {return BDataFromEncrypt;}
-  static void setFromEncrypt(bool fromEncrypt) {
-    BDataFromEncrypt = fromEncrypt;
   }
 
   // ----------------- GCM 模式加密解密 -----------------

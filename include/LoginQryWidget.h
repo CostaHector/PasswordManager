@@ -5,21 +5,19 @@
 #include <QDialog>
 #include <QDialogButtonBox>
 #include <QFormLayout>
+#include <QLabel>
 #include <QLineEdit>
 #include <QStackedLayout>
 #include <QVBoxLayout>
-#include <QLabel>
 class LoginQryWidget : public QDialog {
 public:
   explicit LoginQryWidget(QWidget *parent = nullptr);
   QString getAESKey() const { return mKey; }
-  bool isEncryptedSource() const { return mLoginRegisterStkLo->currentIndex() == ENCRYPT; }
   void Subscribe();
-  std::pair<bool, QString> GetEncryptAndKey() const;
+
 private:
-  QLineEdit* CreateKeyLineEdit() const;
-  QLabel* CreateMessageLabel() const;
-  enum DataSourceType { BEGIN = 0, ENCRYPT = BEGIN, PLAIN, BUTT };
+  QLineEdit *CreateKeyLineEdit() const;
+  QLabel *CreateMessageLabel() const;
 
   QWidget *CreateLoginPage();
   QWidget *CreateRegisterPage();
@@ -30,6 +28,6 @@ private:
   QTabBar *mLoginRegisterTab{nullptr};
   QStackedLayout *mLoginRegisterStkLo{nullptr};
 
-  QVBoxLayout* mMainLayout{nullptr};
+  QVBoxLayout *mMainLayout{nullptr};
 };
 #endif

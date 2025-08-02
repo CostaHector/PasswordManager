@@ -1,7 +1,6 @@
 #include "SimpleAES.h"
 
 QString SimpleAES::KEY = "";
-bool SimpleAES::BDataFromEncrypt = true;
 bool SimpleAES::B_USE_RANDOM_IV = true; // all 0 is only for debug
 
 bool SimpleAES::encrypt_GCM(const QString &input, QString& encryptedResult) {

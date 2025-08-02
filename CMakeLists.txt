@@ -1,6 +1,8 @@
 ﻿cmake_minimum_required(VERSION 3.5)
 
-project(PasswordManager VERSION 0.1 LANGUAGES CXX)
+set(PROJECT_NAME PasswordManager)
+project(${PROJECT_NAME} VERSION 0.1 LANGUAGES CXX)
+add_definitions(-DPROJECT_NAME="${PROJECT_NAME}")
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
@@ -55,7 +57,7 @@ foreach(file ${SRV_HEADER_FILES})
     message("${file}")
 endforeach()
 
-add_executable(PasswordManager
+add_executable(${PROJECT_NAME}
     ${PROJECT_SOURCES}
     ${SRV_SRC_CPP}
     ${SRV_TOOLS_SRC_CPP}
@@ -63,13 +65,13 @@ add_executable(PasswordManager
 )
 
 # 添加头文件
-target_sources(PasswordManager PUBLIC
+target_sources(${PROJECT_NAME} PUBLIC
     ${SRV_HEADER_FILES}
     ${SRV_TOOLS_HEADER_FILES}
 )
 
-target_include_directories(PasswordManager PUBLIC ${SRV_HEADER_PATH})
-target_link_libraries(PasswordManager PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_include_directories(${PROJECT_NAME} PUBLIC ${SRV_HEADER_PATH})
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
 # OpenSSL configuration for Windows
 if(WIN32)
@@ -85,13 +87,13 @@ if(WIN32)
 
     # Debug vs Release library selection
     if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        target_link_libraries(PasswordManager PRIVATE
+        target_link_libraries(${PROJECT_NAME} PRIVATE
             "${OPENSSL_ROOT_DIR}/lib/VC/x64/MDd/libssl.lib"
             "${OPENSSL_ROOT_DIR}/lib/VC/x64/MDd/libcrypto.lib"
         )
         message(STATUS "Linking with OpenSSL Debug libraries")
     else()
-        target_link_libraries(PasswordManager PRIVATE
+        target_link_libraries(${PROJECT_NAME} PRIVATE
             "${OPENSSL_ROOT_DIR}/lib/VC/x64/MD/libssl.lib"
             "${OPENSSL_ROOT_DIR}/lib/VC/x64/MD/libcrypto.lib"
         )
@@ -103,10 +105,10 @@ endif()
 # If you are developing for iOS or macOS you should consider setting an
 # explicit, fixed bundle identifier manually though.
 if(${QT_VERSION} VERSION_LESS 6.1.0)
-    set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.PasswordManager)
+    set(BUNDLE_ID_OPTION MACOSX_BUNDLE_GUI_IDENTIFIER com.example.${PROJECT_NAME})
 endif()
 
-set_target_properties(PasswordManager PROPERTIES
+set_target_properties(${PROJECT_NAME} PROPERTIES
     ${BUNDLE_ID_OPTION}
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
@@ -115,12 +117,12 @@ set_target_properties(PasswordManager PROPERTIES
 )
 
 include(GNUInstallDirs)
-install(TARGETS PasswordManager
+install(TARGETS ${PROJECT_NAME}
     BUNDLE DESTINATION .
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(PasswordManager)
+    qt_finalize_executable(${PROJECT_NAME})
 endif()
