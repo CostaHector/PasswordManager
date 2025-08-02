@@ -6,8 +6,17 @@
 #include <QPlainTextEdit>
 #include "Notificator.h"
 #include "PublicVariable.h"
-#include "SimpleAES.h"
 #include "TableEditActions.h"
+
+void SetLayoutAlightment(QLayout* lay, const Qt::AlignmentFlag align) {
+  if (lay == nullptr) {
+    return;
+  }
+  // Only QToolBar and QToolButton need to set alignment. (QWidget like QSeperator not need)
+  for (int i = 0; i < lay->count(); ++i) {
+    lay->itemAt(i)->setAlignment(align);
+  }
+}
 
 PasswordManager::PasswordManager(QWidget* parent)
   : QMainWindow{parent} {
@@ -37,12 +46,14 @@ PasswordManager::PasswordManager(QWidget* parent)
   insertRowsTB->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextBesideIcon);
   insertRowsTB->addAction(tblEditInst.INSERT_A_ROW);
   insertRowsTB->addAction(tblEditInst.INSERT_ROWS);
+  SetLayoutAlightment(insertRowsTB->layout(), Qt::AlignmentFlag::AlignLeft);
 
   QToolBar* exportTB = new QToolBar{"Export Contents", this};
   exportTB->setOrientation(Qt::Orientation::Vertical);
   exportTB->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextBesideIcon);
   exportTB->addAction(tblEditInst.SHOW_PLAIN_CSV_CONTENT);
   exportTB->addAction(tblEditInst.EXPORT_TO_PLAIN_CSV);
+  SetLayoutAlightment(exportTB->layout(), Qt::AlignmentFlag::AlignLeft);
 
   mToolBar = new QToolBar{"EditToolbar", this};
   mToolBar->setObjectName(mToolBar->windowTitle());
@@ -108,14 +119,10 @@ void PasswordManager::Subscribe() {
 
 void PasswordManager::SetPWBookName() {
   QString title;
-  title.reserve(30);
-  title += "Password Manager";
+  title.reserve(40);
+  title += PROJECT_NAME;
   title += " | ";
-  if (SimpleAES::getFromEncrypt()) {
-    title += AccountStorage::ENC_CSV_FILE;
-  } else {
-    title += AccountStorage::EXPORTED_PLAIN_CSV_FILE;
-  }
+  title += AccountStorage::GetFullEncCsvFilePath();
   setWindowTitle(title);
 }
 

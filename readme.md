@@ -12,13 +12,21 @@
 
 ## 功能简介
 
-![登录](imgs/LoginQryWidget.png)
+支持AES/GCM加密算法的密码本. 
 
+1. 登录
+![登录](imgs/LoginQryWidget_Login.png)
+
+2. 注册
+![注册](imgs/LoginQryWidget_Register.png)
+
+3. 主界面
 ![主界面](imgs/PasswordTable.png)
 
-支持AES/GCM加密算法的密码本. 初次打开时, 请选自"源自明文", 并设定好密钥, 此时可以新增/删除/编辑记录, Ctrl+S保存后就会生成accounts.csv文件(已加密);
+初次打开时, 请选自"Register"进行注册, 并设定好密钥, 进入后, 此时可以新增/删除/编辑记录, Ctrl+S保存后就会生成accounts.csv文件(已加密);
 
-下次打开时, 选择"源自密文", 并输入已经设定好的密钥, 即可查看所有记录;
+下次打开时, 选择"Login"进行登录, 并输入已经设定好的密钥, 即可查看所有记录; 
+
 
 若需要备份, 
 
@@ -26,7 +34,7 @@
 
     也可以保存密文文件(建议) => accounts.csv文件
 
-若需要导入, 则需要把.csv文件放入build/XXXX路径下
+若需要使用导出的accounts.csv, 则需要把accounts.csv文件放入${当前用户/PasswordManager}路径下, 重新打开软件即可.
 
 ### 依赖 OpenSSL
 ​下载 Win64 OpenSSL v3.5.1（非 Light 版本）​​ https://slproweb.com/products/Win32OpenSSL.html
