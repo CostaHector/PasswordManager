@@ -4,28 +4,12 @@
 #include <QTextStream>
 #include "SimpleAES.h"
 
-const QStringList AccountInfo::HORIZONTAL_HEAD{"Index", "Type", "Name", "Account"};
-
-QString AccountInfo::toCsvLine() const {
-  // in others fields there are "comma, new line"
-  QString escapedOthers = othersStr;
-  escapedOthers.replace("\\", "\\\\").replace("\n", "\\n").replace("\r", "\\r").replace(",", "\\,");
-  return typeStr + ',' + nameStr + ',' + accountStr + ',' + pwdStr + ',' + escapedOthers;
-}
-
-bool AccountInfo::FromCsvLine(const QString& csvLine, AccountInfo& acc) {
-  static const QRegularExpression COMMA_SPLITTER{"(?<!\\\\),"};
-  QStringList parts = csvLine.split(COMMA_SPLITTER);
-  if (parts.size() != 5) {
-    return false;
-  }
-  const QString& othersStr = parts[4].replace("\\,", ",").replace("\\r", "\r").replace("\\n", "\n").replace("\\\\", "\\");
-  acc = AccountInfo{parts[0], parts[1], parts[2], parts[3], othersStr};
-  return true;
-}
-
 const QString AccountStorage::ENC_CSV_FILE {"accounts.csv"};
-const QString AccountStorage::PLAIN_CSV_FILE {"plainAccounts.csv"};
+const QString AccountStorage::EXPORTED_PLAIN_CSV_FILE {"exportedPlainAccounts.csv"};
+const bool AccountStorage::IsAccountCSVFileInExistOrEmpty() {
+  QFile csvFile{ENC_CSV_FILE};
+  return !csvFile.exists() || csvFile.size() == 0;
+}
 
 QString AccountStorage::GetExportCSVRecords() const{
   QString fullPlainCSVContents;
@@ -52,7 +36,7 @@ bool AccountStorage::SaveAccounts(bool bEncrypt) const {
       return false;
     }
   } else {
-    csvFile.setFileName(PLAIN_CSV_FILE);
+    csvFile.setFileName(EXPORTED_PLAIN_CSV_FILE);
     contentNeedDumped.swap(fullPlainCSVContents);
   }
   if (!csvFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -71,13 +55,7 @@ bool AccountStorage::SaveAccounts(bool bEncrypt) const {
 
 // when start on, data is from plain or encrypted is determined
 bool AccountStorage::LoadAccounts() {
-  const bool bEncrypt = SimpleAES::getFromEncrypt();
-  QFile csvFile;
-  if (bEncrypt) {
-    csvFile.setFileName(ENC_CSV_FILE);
-  } else {
-    csvFile.setFileName(PLAIN_CSV_FILE);
-  }
+  QFile csvFile{ENC_CSV_FILE};
   if (!csvFile.exists()) {
     qWarning("File[%s] not exist. Create a new one when save them", qPrintable(csvFile.fileName()));
     return true;
@@ -93,14 +71,10 @@ bool AccountStorage::LoadAccounts() {
   csvFile.close();
 
   QString plainContents;
-  if (bEncrypt) {
-    bool decryptResult = SimpleAES::decrypt_GCM(contents, plainContents);
-    if (!decryptResult) {
-      qCritical("Decrypt file[%s] failed! Skip load", qPrintable(csvFile.fileName()));
-      return false;
-    }
-  } else {
-    plainContents.swap(contents);
+  bool decryptResult = SimpleAES::decrypt_GCM(contents, plainContents);
+  if (!decryptResult) {
+    qCritical("Decrypt file[%s] failed! Skip load", qPrintable(csvFile.fileName()));
+    return false;
   }
   int nonEmptyLine{0};
   decltype(mAccounts) tempAccounts = GetAccountsFromPlainString(plainContents, &nonEmptyLine);

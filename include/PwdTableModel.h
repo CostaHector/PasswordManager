@@ -56,7 +56,7 @@ public:
   int AppendAccountRecords(const QVector<AccountInfo>& tempAccounts);
 
   void subscribe();
-  SAVE_RESULT onSave();
+  SAVE_RESULT onSave(QString* detailMessage = nullptr);
   QString GetExportCSVRecords() const { return mAccountsList.GetExportCSVRecords(); }
   bool IsDirty() const { return mAccountsList.IsDataDirty(); }
   bool ExportToPlainCSV() const;

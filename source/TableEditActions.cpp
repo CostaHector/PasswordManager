@@ -15,17 +15,17 @@ TableEditActions::TableEditActions(QObject* parent)
   LOAD_FROM_INPUT = new QAction{QIcon{":/edit/LOAD_FROM_INPUT"}, "Load from input"};
   LOAD_FROM_INPUT->setToolTip("Load records from contents in CSV");
 
-  OPEN_DIRECTORY = new QAction{QIcon{":/OPEN_DIRECTORY"}, "Open Directory"};
+  OPEN_DIRECTORY = new QAction{QIcon{":/OPEN_DIRECTORY"}, "Open directory"};
   OPEN_DIRECTORY->setToolTip("Open root directory where following file(s) at: " //
-                             + AccountStorage::PLAIN_CSV_FILE                   //
+                             + AccountStorage::EXPORTED_PLAIN_CSV_FILE                   //
                              + ", "                                             //
                              + AccountStorage::ENC_CSV_FILE//
                              + ".");
-  SHOW_PLAIN_CSV_CONTENT = new QAction{QIcon{":/edit/SHOW_CSV_CONTENTS"}, "Show CSV Contents"};
+  SHOW_PLAIN_CSV_CONTENT = new QAction{QIcon{":/edit/SHOW_CSV_CONTENTS"}, "Show CSV contents"};
   SHOW_PLAIN_CSV_CONTENT->setToolTip(
       "Show CSV contents in message box");
 
-  EXPORT_TO_PLAIN_CSV = new QAction{QIcon{":/edit/EXPORT"}, "Export Plain CSV"};
+  EXPORT_TO_PLAIN_CSV = new QAction{QIcon{":/edit/EXPORT"}, "Export plain CSV"};
   EXPORT_TO_PLAIN_CSV->setToolTip(
       "Export account table records to CSV file in plaintext (<b>unencrypted, human-readable</b>)");
 
