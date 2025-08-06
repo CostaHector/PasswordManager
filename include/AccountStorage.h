@@ -69,8 +69,8 @@ private:
 
   mutable std::set<int> mDetailModifiedIndexes;
   bool IsAnyDetailModified() const {
-    if (!mIsListModifed) { // index still works, not invalid
-      return !mDetailModifiedIndexes.empty();
+    if (!mDetailModifiedIndexes.empty()) {
+      return true;
     }
     int count = mAccounts.size();
     for (int index = 0; index < count; ++index) {

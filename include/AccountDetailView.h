@@ -6,7 +6,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QTextEdit>
-#include "AccountStorage.h"
+#include "AccountInfo.h"
 
 class AccountDetailView : public QDockWidget {
 public:

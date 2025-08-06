@@ -4,7 +4,6 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include "CardTemplate.h"
-#include "TableEditActions.h"
 #include <set>
 
 bool AccountSortFilterProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const {
@@ -157,12 +156,12 @@ SAVE_RESULT PwdTableModel::onSave(QString* detailMessage) {
     qDebug("Nothing changed. No need to save at all");
     return SAVE_RESULT::SKIP;
   }
+  QString detailMsg = mAccountsList.GetRowChangeDetailMessage();
   bool saveResult = mAccountsList.SaveAccounts(true);
   if (!saveResult) {
     qWarning("Save record(s) failed");
     return SAVE_RESULT::FAILED;
   }
-  QString detailMsg = mAccountsList.GetRowChangeDetailMessage();
   if (detailMessage != nullptr) {
     *detailMessage = detailMsg;
   }
