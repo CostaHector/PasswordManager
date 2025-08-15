@@ -8,21 +8,23 @@
 
 const QString& AccountStorage::GetFullEncCsvFilePath() {
   static const QString homePath = QDir::homePath();
-  if (!QDir{homePath}.exists(PROJECT_NAME)) {
-    QDir{homePath}.mkpath(PROJECT_NAME);
+  if (!QDir{homePath}.exists(DATA_FOLDER)) {
+    if (!QDir{homePath}.mkpath(DATA_FOLDER)) {
+      qCritical("mkpath[%s/%s] failed", qPrintable(homePath), DATA_FOLDER);
+    }
   }
   static constexpr char ENC_CSV_FILE[] {"accounts.csv"};
-  static const QString absEncFilePath = QDir::toNativeSeparators(homePath + '/' + PROJECT_NAME + '/' + ENC_CSV_FILE);
+  static const QString absEncFilePath = QDir::toNativeSeparators(homePath + '/' + DATA_FOLDER + '/' + ENC_CSV_FILE);
   return absEncFilePath;
 }
 
 const QString& AccountStorage::GetFullPlainCsvFilePath() {
   static const QString homePath = QDir::homePath();
-  if (!QDir{homePath}.exists(PROJECT_NAME)) {
-    QDir{homePath}.mkpath(PROJECT_NAME);
+  if (!QDir{homePath}.exists(DATA_FOLDER)) {
+    QDir{homePath}.mkpath(DATA_FOLDER);
   }
   static constexpr char EXPORTED_PLAIN_CSV_FILE[] {"exportedPlainAccounts.csv"};
-  static const QString absPlainFilePath = QDir::toNativeSeparators(homePath + '/' + PROJECT_NAME + '/' + EXPORTED_PLAIN_CSV_FILE);;
+  static const QString absPlainFilePath = QDir::toNativeSeparators(homePath + '/' + DATA_FOLDER + '/' + EXPORTED_PLAIN_CSV_FILE);;
   return absPlainFilePath;
 }
 
@@ -136,8 +138,9 @@ int AccountStorage::RemoveIndexes(const std::set<int>& rows) {
     mAccounts.removeAt(*rit);
   }
   qDebug("row size changed from %d->%d(given %lluu row indexes)", beforeRowCnt, size(), rows.size());
-  SetListModified();
-  return beforeRowCnt - size();
+  const int rmvedRowCnt{beforeRowCnt - size()};
+  SetListModified(rmvedRowCnt);
+  return rmvedRowCnt;
 }
 
 bool AccountStorage::InsertNRows(int indexBefore, int cnt) {
@@ -151,7 +154,7 @@ bool AccountStorage::InsertNRows(int indexBefore, int cnt) {
     indexBefore = size();
   }
   mAccounts.insert(indexBefore, cnt, AccountInfo{});
-  SetListModified();
+  SetListModified(cnt);
   return true;
 }
 

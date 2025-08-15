@@ -3,6 +3,7 @@
 set(PROJECT_NAME PasswordManager)
 project(${PROJECT_NAME} VERSION 0.1 LANGUAGES CXX)
 add_definitions(-DPROJECT_NAME="${PROJECT_NAME}")
+add_definitions(-DDATA_FOLDER="${PROJECT_NAME}Data")
 
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
