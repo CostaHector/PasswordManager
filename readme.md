@@ -34,7 +34,7 @@
 
     也可以保存密文文件(建议) => accounts.csv文件
 
-若需要使用导出的accounts.csv, 则需要把accounts.csv文件放入${当前用户/PasswordManager}路径下, 重新打开软件即可.
+若需要使用导出的accounts.csv, 则需要把accounts.csv文件放入${当前用户/PasswordManagerData}路径下, 重新打开软件即可.
 
 ### 依赖 OpenSSL
 ​下载 Win64 OpenSSL v3.5.1（非 Light 版本）​​ https://slproweb.com/products/Win32OpenSSL.html
@@ -115,6 +115,11 @@ if(WIN32)
 endif()
 ```
 
+若报错 System Error
+The code execution cannot proceed because libcrypto-3-x64.dll was not found. 
+Reinstalling the program may fix this problem.
+将如下路径加入到系统环境变量Path中
+C:\Program Files\OpenSSL-Win64\bin
 
 ### 导出
 可导出记录到明文csv文件, 可保存记录到密文csv文件;
