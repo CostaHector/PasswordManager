@@ -24,7 +24,6 @@
         <file alias="INSERT_ROWS">images/INSERT_ROWS.svg</file>
         <file alias="LOAD_FROM_INPUT">images/LOAD_FROM_INPUT.svg</file>
         <file alias="SAVE_CHANGES">images/SAVE_CHANGES.svg</file>
-        <file alias="CREATE_TABLE">images/CREATE_TABLE.svg</file>
         <file alias="SEARCH_BY">images/SEARCH_BY.svg</file>
         <file alias="SHOW_CSV_CONTENTS">images/SHOW_CSV_CONTENTS.svg</file>
         <file alias="EXPORT">images/EXPORT.svg</file>
